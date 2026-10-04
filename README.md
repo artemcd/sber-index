@@ -93,3 +93,14 @@ uv run python scripts/compare_models.py
 Скрипт сравнивает атрибутивные, статическую сетевую и динамическую модели по
 признаковым, сетевым и временным метрикам. Результаты находятся в
 `artifacts/comparison`, выводы — в `reports/model_comparison.md`.
+
+## Интерпретация типов
+
+```bash
+uv run python scripts/interpret_clusters.py
+```
+
+Скрипт добавляет названия и регионы муниципалитетов, выделяет устойчивые и
+пограничные случаи, длительные переходы и подбирает сопоставимые территории.
+Таблицы для лендинга сохраняются в `artifacts/interpretation`, выводы — в
+`reports/cluster_interpretation.md`.
