@@ -83,3 +83,13 @@ uv run python scripts/run_dynamic_model.py
 возможные связи, а их веса меняются по экономическому сходству муниципалитетов.
 Параметры находятся в `config/dynamic_model.json`, назначения — в
 `artifacts/dynamic`, описание метода — в `reports/dynamic_clustering.md`.
+
+## Сравнение методов
+
+```bash
+uv run python scripts/compare_models.py
+```
+
+Скрипт сравнивает атрибутивные, статическую сетевую и динамическую модели по
+признаковым, сетевым и временным метрикам. Результаты находятся в
+`artifacts/comparison`, выводы — в `reports/model_comparison.md`.
