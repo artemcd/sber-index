@@ -62,3 +62,13 @@ uv run python scripts/run_graph_model.py
 добавляет к признакам локальный транспортный контекст и сравнивает результат с
 атрибутивным baseline. Итоги сохраняются в `artifacts/graph` и
 `reports/graph_clustering.md`.
+
+## Проверка устойчивости
+
+```bash
+uv run python scripts/validate_model.py
+```
+
+Проверка повторяет обучение на bootstrap-выборках месяцев, соседних параметрах графа
+и отдельных годах. Результаты сохраняются в `artifacts/validation` и
+`reports/model_validation.md`.

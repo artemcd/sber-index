@@ -32,7 +32,7 @@ CLUSTER_NAMES = {
 }
 
 
-def load_features() -> tuple[pd.DataFrame, list[int]]:
+def load_monthly_features() -> tuple[pd.DataFrame, pd.DataFrame]:
     consumption = pd.read_parquet(DATA / "consumption.parquet")
     market = pd.read_parquet(DATA / "market_access.parquet")
 
@@ -50,8 +50,13 @@ def load_features() -> tuple[pd.DataFrame, list[int]]:
     wide["relative_spend"] = np.log(wide["Все категории"] / monthly_median)
     for source, target in CATEGORIES.items():
         wide[target] = wide[source] / wide["Все категории"]
+    return wide, market
 
-    annual = wide.groupby(["territory_id", "year"])[
+
+def aggregate_features(
+    monthly: pd.DataFrame, market: pd.DataFrame
+) -> tuple[pd.DataFrame, list[int]]:
+    annual = monthly.groupby(["territory_id", "year"])[
         ["relative_spend", *CATEGORIES.values()]
     ].median().reset_index()
     annual = annual.merge(market, on="territory_id", how="left", validate="many_to_one")
@@ -62,11 +67,16 @@ def load_features() -> tuple[pd.DataFrame, list[int]]:
     )
     annual["log_market_access"] = np.log(annual["market_access"])
 
-    if len(complete_ids) != 2016 or len(annual) != 4032:
+    if len(annual) != 4032:
         raise SystemExit("Изменилась сбалансированная панель")
     if not np.isfinite(annual[FEATURES].to_numpy()).all():
         raise SystemExit("В признаках появились нечисловые значения")
     return annual, missing_ids
+
+
+def load_features() -> tuple[pd.DataFrame, list[int]]:
+    monthly, market = load_monthly_features()
+    return aggregate_features(monthly, market)
 
 
 def fit_baseline(
