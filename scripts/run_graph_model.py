@@ -113,12 +113,17 @@ def metrics(
     node_count: int,
 ) -> dict[str, float]:
     yearly_labels = labels.reshape(-1, node_count)
+    temporal_stability = (
+        np.mean(yearly_labels[0] == yearly_labels[1])
+        if len(yearly_labels) > 1
+        else np.nan
+    )
     return {
         "silhouette": silhouette_score(attributes, labels),
         "modularity": np.mean(
             [modularity(graph, year_labels) for year_labels in yearly_labels]
         ),
-        "temporal_stability": np.mean(yearly_labels[0] == yearly_labels[1]),
+        "temporal_stability": temporal_stability,
         "min_cluster_share": np.unique(labels, return_counts=True)[1].min()
         / len(labels),
     }
