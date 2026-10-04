@@ -51,3 +51,14 @@ uv run python scripts/run_baseline.py
 Скрипт строит годовые признаки, сравнивает разбиения от двух до восьми кластеров и
 сохраняет результат в `artifacts/baseline`, а краткий разбор — в
 `reports/clustering_baseline.md`.
+
+## Транспортная сеть
+
+```bash
+uv run python scripts/run_graph_model.py
+```
+
+Скрипт строит разреженный граф ближайших автодорожных и железнодорожных связей,
+добавляет к признакам локальный транспортный контекст и сравнивает результат с
+атрибутивным baseline. Итоги сохраняются в `artifacts/graph` и
+`reports/graph_clustering.md`.
