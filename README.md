@@ -104,3 +104,14 @@ uv run python scripts/interpret_clusters.py
 пограничные случаи, длительные переходы и подбирает сопоставимые территории.
 Таблицы для лендинга сохраняются в `artifacts/interpretation`, выводы — в
 `reports/cluster_interpretation.md`.
+
+## Лендинг
+
+```bash
+uv run python scripts/build_site_data.py
+uv run python -m http.server 8000 -d site
+```
+
+После запуска откройте `http://localhost:8000`. Лендинг работает без сборщика и
+внешних сервисов: интерактивная карта, поиск, динамика типа и муниципальные аналоги
+загружаются из подготовленного `site/data.json`.
