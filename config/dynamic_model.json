@@ -1,0 +1,10 @@
+{
+  "clusters": 3,
+  "highway_neighbors": 8,
+  "railway_neighbors": 3,
+  "rail_weight": 0.25,
+  "neighbor_mix": 0.2,
+  "economic_bandwidths": [0.5, 1.0, 1.5, 2.0, 3.0, 5.0],
+  "random_state": 42,
+  "n_init": 30
+}
