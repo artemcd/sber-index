@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Интерактивная типология экономик российских муниципалитетов на данных СберИндекса">
+  <title>Локальный код — экономические типы муниципалитетов</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="Локальный код — на главную">
+      <span class="brand-mark">ЛК</span>
+      <span>Локальный код</span>
+    </a>
+    <nav aria-label="Навигация по странице">
+      <a href="#types">Типы</a>
+      <a href="#atlas">Атлас</a>
+      <a href="#method">Метод</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero page-grid">
+      <div class="eyebrow">Исследование муниципальной экономики · 2023–2024</div>
+      <h1>У каждой территории свой <span>экономический ритм</span></h1>
+      <p class="hero-lead">Мы нашли три устойчивых типа локальных экономик и проследили, как 2016 муниципалитетов менялись месяц за месяцем.</p>
+      <div class="hero-actions">
+        <a class="button button-primary" href="#atlas">Найти муниципалитет</a>
+        <a class="button button-secondary" href="#method">Как это работает</a>
+      </div>
+      <div class="hero-orbit" aria-hidden="true">
+        <span class="orbit orbit-one"></span>
+        <span class="orbit orbit-two"></span>
+        <span class="orbit orbit-three"></span>
+        <span class="orbit-core">24<br><small>месяца</small></span>
+      </div>
+      <dl class="hero-stats" aria-label="Основные показатели исследования">
+        <div><dt id="stat-municipalities">2016</dt><dd>муниципалитетов</dd></div>
+        <div><dt id="stat-core">86%</dt><dd>устойчивое ядро</dd></div>
+        <div><dt>3</dt><dd>экономических типа</dd></div>
+        <div><dt id="stat-transitions">215</dt><dd>устойчивых переходов</dd></div>
+      </dl>
+    </section>
+
+    <section class="intro page-grid" id="types">
+      <div class="section-heading">
+        <span class="section-number">01</span>
+        <div>
+          <p class="eyebrow">Не рейтинг городов</p>
+          <h2>Три способа жить и тратить</h2>
+        </div>
+      </div>
+      <p class="section-lead">Типы описывают структуру безналичных расходов и транспортный контекст. Это не шкала «лучше — хуже» и не административная классификация.</p>
+      <div class="type-grid" id="cluster-cards" aria-live="polite"></div>
+    </section>
+
+    <section class="atlas-section" id="atlas">
+      <div class="page-grid">
+        <div class="section-heading section-heading-light">
+          <span class="section-number">02</span>
+          <div>
+            <p class="eyebrow">Интерактивный атлас</p>
+            <h2>Найдите территорию на экономической карте</h2>
+          </div>
+        </div>
+        <div class="atlas-toolbar">
+          <form class="search" id="search-form">
+            <label for="municipality-search">Муниципалитет или регион</label>
+            <div class="search-row">
+              <input id="municipality-search" list="municipality-list" autocomplete="off" placeholder="Например, Казань">
+              <datalist id="municipality-list"></datalist>
+              <button type="submit">Показать</button>
+            </div>
+          </form>
+          <div class="filters" id="map-filters" aria-label="Фильтр по типу">
+            <button class="filter is-active" data-cluster="0">Все</button>
+            <button class="filter" data-cluster="1"><span></span>Цифровая повседневность</button>
+            <button class="filter" data-cluster="2"><span></span>Автономные центры</button>
+            <button class="filter" data-cluster="3"><span></span>Крупные центры</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="map-wrap">
+        <svg id="map" viewBox="0 0 1000 440" role="img" aria-label="Схематичная карта муниципалитетов России"></svg>
+        <div class="map-caption">Схематичное положение центров муниципалитетов · декабрь 2024</div>
+        <div class="tooltip" id="map-tooltip" hidden></div>
+      </div>
+
+      <article class="passport page-grid" id="passport" aria-live="polite">
+        <div class="passport-title">
+          <p class="eyebrow" id="passport-region">Республика Татарстан</p>
+          <h3 id="passport-name">Казань</h3>
+          <p id="passport-full-name"></p>
+        </div>
+        <div class="passport-type">
+          <span class="type-dot" id="passport-dot"></span>
+          <div><small>Тип в декабре 2024</small><strong id="passport-cluster">Крупные центры</strong></div>
+        </div>
+        <dl class="passport-metrics">
+          <div><dt id="passport-spend">—</dt><dd>индекс расходов</dd></div>
+          <div><dt id="passport-access">—</dt><dd>доступность рынков</dd></div>
+          <div><dt id="passport-months">—</dt><dd>месяцев в текущем типе</dd></div>
+          <div><dt id="passport-stability">—</dt><dd>устойчивость</dd></div>
+        </dl>
+        <div class="timeline-block">
+          <div class="timeline-heading"><h4>Динамика типа</h4><span>январь 2023 → декабрь 2024</span></div>
+          <div class="timeline" id="passport-timeline"></div>
+        </div>
+        <div class="comparables-block">
+          <div class="timeline-heading"><h4>Сопоставимые территории</h4><span>ближайший профиль из другого региона</span></div>
+          <div class="comparables" id="passport-comparables"></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="method page-grid" id="method">
+      <div class="section-heading">
+        <span class="section-number">03</span>
+        <div>
+          <p class="eyebrow">Метод</p>
+          <h2>Экономика — это не только набор показателей</h2>
+        </div>
+      </div>
+      <div class="method-story">
+        <div class="method-step"><span>1</span><h3>Наблюдаем</h3><p>Расходы по категориям и доступность рынков для каждого муниципалитета.</p></div>
+        <div class="method-arrow" aria-hidden="true">→</div>
+        <div class="method-step"><span>2</span><h3>Связываем</h3><p>Автодорожная и железнодорожная сеть задаёт реальное окружение территории.</p></div>
+        <div class="method-arrow" aria-hidden="true">→</div>
+        <div class="method-step"><span>3</span><h3>Сравниваем во времени</h3><p>Вес связей меняется вместе с экономическим сходством, тип пересчитывается ежемесячно.</p></div>
+      </div>
+
+      <div class="model-card">
+        <div>
+          <p class="eyebrow">Проверка альтернатив</p>
+          <h3>Динамическая сеть даёт лучший баланс</h3>
+          <p>Она лидирует по разделимости кластеров и временной согласованности. Статическая сеть немного лучше сохраняет транспортные сообщества, поэтому мы не называем победителя абсолютным.</p>
+        </div>
+        <div class="model-table-wrap">
+          <table>
+            <thead><tr><th>Модель</th><th>SW ↑</th><th>ARI во времени ↑</th><th>Модулярность ↑</th></tr></thead>
+            <tbody id="model-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="limits">
+        <h3>Что важно помнить</h3>
+        <p>Кластеры не измеряют благополучие. В данных нет населения, доходов и отраслевой структуры. Переход типа — сигнал для исследования, а не доказательство структурного сдвига.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div><strong>Локальный код</strong><span>Типология муниципальных экономик</span></div>
+    <p>Данные: СберИндекс, CC BY-SA 4.0. Период наблюдений: январь 2023 — декабрь 2024.</p>
+  </footer>
+
+  <noscript>Для интерактивной карты необходимо включить JavaScript.</noscript>
+</body>
+</html>
