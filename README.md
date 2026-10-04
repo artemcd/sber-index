@@ -72,3 +72,14 @@ uv run python scripts/validate_model.py
 Проверка повторяет обучение на bootstrap-выборках месяцев, соседних параметрах графа
 и отдельных годах. Результаты сохраняются в `artifacts/validation` и
 `reports/model_validation.md`.
+
+## Динамическая модель
+
+```bash
+uv run python scripts/run_dynamic_model.py
+```
+
+Финальная модель этой итерации строит 24 помесячных среза сети. Транспорт задаёт
+возможные связи, а их веса меняются по экономическому сходству муниципалитетов.
+Параметры находятся в `config/dynamic_model.json`, назначения — в
+`artifacts/dynamic`, описание метода — в `reports/dynamic_clustering.md`.
