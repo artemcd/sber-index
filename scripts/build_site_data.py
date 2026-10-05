@@ -11,6 +11,7 @@ MUNICIPALITIES = ROOT / "artifacts" / "interpretation" / "municipalities.csv"
 COMPARABLES = ROOT / "artifacts" / "interpretation" / "comparables.csv"
 MONTHLY = ROOT / "artifacts" / "dynamic" / "monthly_clusters.csv"
 COMPARISON = ROOT / "artifacts" / "comparison" / "model_summary.csv"
+TRANSITIONS = ROOT / "artifacts" / "interpretation" / "persistent_transitions.csv"
 BOUNDARIES = ROOT / "data" / "raw" / "boundaries" / "t_dict_municipal_districts_poly.gpkg"
 OUTPUT = ROOT / "site" / "data.json"
 
@@ -63,11 +64,39 @@ def compact_models(frame: pd.DataFrame) -> list[dict]:
     ]
 
 
+def featured_signals(frame: pd.DataFrame) -> list[dict]:
+    selected = (
+        frame[frame["new_run_months"] >= 6]
+        .sort_values(["new_run_margin", "new_run_months"], ascending=False)
+        .drop_duplicates("to_cluster")
+        .sort_values("to_cluster")
+    )
+    if len(selected) != 3:
+        raise SystemExit("Не найдено по одному устойчивому переходу в каждый тип")
+
+    return [
+        {
+            "id": int(row["territory_id"]),
+            "name": row["municipal_district_name_short"],
+            "region": row["region_name"],
+            "date": row["date"],
+            "fromCluster": int(row["from_cluster"]),
+            "fromName": row["from_cluster_name"],
+            "toCluster": int(row["to_cluster"]),
+            "toName": row["to_cluster_name"],
+            "months": int(row["new_run_months"]),
+            "margin": round(row["new_run_margin"], 3),
+        }
+        for _, row in selected.iterrows()
+    ]
+
+
 def main() -> None:
     municipalities = pd.read_csv(MUNICIPALITIES)
     comparables = pd.read_csv(COMPARABLES)
     monthly = pd.read_csv(MONTHLY).sort_values(["territory_id", "date"])
     models = pd.read_csv(COMPARISON)
+    transitions = pd.read_csv(TRANSITIONS)
 
     municipalities = municipalities.merge(
         boundary_centers(), on="territory_id", how="left", validate="one_to_one"
@@ -139,6 +168,7 @@ def main() -> None:
             ),
         },
         "clusters": cluster_profiles(municipalities),
+        "signals": featured_signals(transitions),
         "models": compact_models(models),
         "municipalities": records,
     }

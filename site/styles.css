@@ -227,7 +227,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 .hero-stats dd { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
 
-.intro, .method { padding-block: 110px; }
+.intro, .signals, .method { padding-block: 110px; }
 
 .section-heading {
   display: grid;
@@ -470,6 +470,63 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .comparable:hover { border-color: #83cbb5; }
 .comparable strong { font-size: 12px; }
 .comparable span { color: #91a6a7; font-size: 10px; }
+
+.signal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.signal-card {
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: white;
+}
+
+.signal-card-head { display: flex; justify-content: space-between; gap: 16px; color: var(--muted); font-size: 10px; text-transform: uppercase; }
+.signal-card-head strong { color: var(--ink); font-weight: 650; }
+.signal-card h3 { margin: 42px 0 3px; font-size: 30px; letter-spacing: -.04em; line-height: 1; }
+.signal-region { margin: 0; color: var(--muted); font-size: 12px; }
+
+.signal-path {
+  display: grid;
+  grid-template-columns: 1fr 22px 1fr;
+  align-items: center;
+  gap: 8px;
+  margin-top: 38px;
+}
+
+.signal-path div { display: grid; grid-template-columns: 10px 1fr; gap: 2px 7px; align-items: center; }
+.signal-path div > span { grid-row: 1 / 3; width: 9px; height: 9px; border-radius: 50%; background: var(--from-color); }
+.signal-path div:last-child > span { background: var(--to-color); }
+.signal-path small { color: var(--muted); font-size: 9px; text-transform: uppercase; }
+.signal-path strong { font-size: 11px; line-height: 1.25; }
+.signal-path b { color: #9aa8a3; font-size: 16px; font-weight: 400; }
+
+.signal-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 30px 0 0; padding-top: 20px; border-top: 1px solid var(--line); }
+.signal-facts div { display: grid; }
+.signal-facts dt { font-size: 18px; font-weight: 700; }
+.signal-facts dd { order: -1; margin: 0; color: var(--muted); font-size: 9px; text-transform: uppercase; }
+.signal-open { margin-top: 24px; padding: 0; border: 0; border-bottom: 1px solid #9aaba5; color: var(--ink); background: transparent; font-size: 11px; font-weight: 700; cursor: pointer; }
+.signal-open:hover { border-color: var(--ink); }
+
+.use-cases {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  margin-top: 60px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--line);
+  overflow: hidden;
+}
+
+.use-cases article { padding: 28px; background: rgba(255,255,255,.72); }
+.use-cases span { color: #3d8877; font-size: 10px; }
+.use-cases h3 { margin: 38px 0 8px; font-size: 20px; }
+.use-cases p { margin: 0; color: var(--muted); font-size: 13px; }
+.signals-note { max-width: 760px; margin: 28px 0 0; color: var(--muted); font-size: 13px; }
 
 .method-story {
   display: grid;
