@@ -55,7 +55,7 @@ Bootstrap с медианным ARI 0,934 относится к годовой �
 | Объяснение методологии | 15% | [Признаки, граф и динамика](reports/dynamic_clustering.md) |
 | Атрибутивная и сетевая структура | 15% | Формулы транспортных и экономических весов в методологическом отчёте; [эффект сетевого контекста](reports/graph_clustering.md) |
 | Сравнение методов | 15% | [KMeans, GMM, статическая и динамическая сеть](reports/model_comparison.md) |
-| ICVI: SW, CH, S_Dbw, AVI, AVU, MQ | 15% | [Сводка](artifacts/comparison/model_summary.csv), [24 месячных среза](artifacts/comparison/monthly_metrics.csv) |
+| ICVI: SW, CH, S_Dbw, AVI, AVU, MQ | 15% | [Сводка](artifacts/comparison/model_summary.csv), [24 месячных среза](artifacts/comparison/monthly_metrics.csv), [чувствительность четырёх моделей к K=2–8](artifacts/comparison/cluster_count_sensitivity.csv) |
 | Интерпретация, воспроизводимость и обоснованность | 30% | [Профили и переходы](reports/cluster_interpretation.md), ограничения метода, `uv.lock` и `make all` |
 | Визуализация | 10% | Атлас, траектории, аналоги и примеры переходов на лендинге |
 

@@ -1,4 +1,10 @@
 const colors = {1: "#45c5a1", 2: "#efad55", 3: "#8f83ea"};
+const modelColors = {
+  "KMeans, признаки": "#45c5a1",
+  "GMM, признаки": "#efad55",
+  "KMeans, статическая сеть": "#8f83ea",
+  "KMeans, динамическая сеть": "#f07872"
+};
 const descriptions = {
   1: "Ниже медианы по общим расходам, заметно выше роль маркетплейсов и повседневных покупок.",
   2: "Расходы выше медианы при сравнительно низкой доступности внешних рынков.",
@@ -205,6 +211,67 @@ function renderModels() {
   }).join("");
 }
 
+function renderClusterChart(metric = "silhouette") {
+  const chart = document.querySelector("#cluster-chart");
+  const legend = document.querySelector("#cluster-chart-legend");
+  const rows = dataset.clusterSensitivity;
+  const models = [...new Set(rows.map(row => row.model))];
+  const values = rows.map(row => row[metric]);
+  const minValue = Math.min(...values);
+  const maxValue = Math.max(...values);
+  const padding = (maxValue - minValue) * .12 || .02;
+  const lower = minValue - padding;
+  const upper = maxValue + padding;
+  const left = 58;
+  const right = 738;
+  const top = 20;
+  const bottom = 252;
+  const clusters = [...new Set(rows.map(row => row.clusters))].sort((a, b) => a - b);
+  const x = value => left + (value - clusters[0]) / (clusters.at(-1) - clusters[0]) * (right - left);
+  const y = value => bottom - (value - lower) / (upper - lower) * (bottom - top);
+  const percent = ["temporalAri", "minClusterShare"].includes(metric);
+  const format = value => percent ? `${(value * 100).toFixed(0)}%` : value.toFixed(3);
+
+  chart.replaceChildren();
+  for (let index = 0; index <= 4; index += 1) {
+    const value = upper - (upper - lower) * index / 4;
+    const line = svgElement("line", {x1: left, y1: y(value), x2: right, y2: y(value), class: "chart-grid"});
+    const label = svgElement("text", {x: left - 10, y: y(value) + 4, "text-anchor": "end", class: "chart-label"});
+    label.textContent = format(value);
+    chart.append(line, label);
+  }
+  clusters.forEach(cluster => {
+    const label = svgElement("text", {x: x(cluster), y: bottom + 24, "text-anchor": "middle", class: "chart-label"});
+    label.textContent = cluster;
+    chart.append(label);
+  });
+
+  models.forEach(model => {
+    const series = rows.filter(row => row.model === model).sort((a, b) => a.clusters - b.clusters);
+    const path = svgElement("path", {
+      d: series.map((row, index) => `${index ? "L" : "M"}${x(row.clusters)},${y(row[metric])}`).join(" "),
+      stroke: modelColors[model],
+      class: "chart-line"
+    });
+    chart.append(path);
+    series.forEach(row => {
+      const point = svgElement("circle", {cx: x(row.clusters), cy: y(row[metric]), r: 4.5, fill: modelColors[model], class: "chart-point"});
+      const title = svgElement("title");
+      title.textContent = `${model}, K=${row.clusters}: ${format(row[metric])}`;
+      point.append(title);
+      chart.append(point);
+    });
+  });
+
+  legend.replaceChildren(...models.map(model => {
+    const item = document.createElement("span");
+    const swatch = document.createElement("i");
+    swatch.style.background = modelColors[model];
+    item.append(swatch, document.createTextNode(model));
+    return item;
+  }));
+}
+
 function formatMonth(value) {
   const [year, month] = value.split("-").map(Number);
   return new Intl.DateTimeFormat("ru-RU", {month: "long", year: "numeric"})
@@ -245,6 +312,8 @@ async function start() {
   renderMap();
   renderSignals();
   renderModels();
+  renderClusterChart();
+  document.querySelector("#cluster-chart-metric").addEventListener("change", event => renderClusterChart(event.target.value));
   setupSearch();
   document.querySelector("#map-filters").addEventListener("click", event => {
     const button = event.target.closest("button[data-cluster]");

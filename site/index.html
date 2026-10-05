@@ -166,6 +166,23 @@
         </div>
       </div>
 
+      <div class="cluster-chart-card">
+        <div class="cluster-chart-heading">
+          <div><p class="eyebrow">Чувствительность к K</p><h3>Как меняются модели при разном числе типов</h3></div>
+          <label for="cluster-chart-metric">Показатель
+            <select id="cluster-chart-metric">
+              <option value="silhouette">Silhouette</option>
+              <option value="temporalAri">ARI во времени</option>
+              <option value="modularity">Модулярность</option>
+              <option value="minClusterShare">Доля минимального кластера</option>
+            </select>
+          </label>
+        </div>
+        <svg id="cluster-chart" viewBox="0 0 760 300" role="img" aria-label="Сравнение метрик моделей при разном числе кластеров"></svg>
+        <div class="cluster-chart-legend" id="cluster-chart-legend"></div>
+        <p class="chart-note">Одна и та же панель и параметры сети; K меняется от 2 до 8. Метрики не сводятся в один рейтинг.</p>
+      </div>
+
       <div class="limits">
         <h3>Что важно помнить</h3>
         <p>Кластеры не измеряют благополучие. В данных нет населения, доходов и отраслевой структуры. Типология построена ретроспективно за все 24 месяца. Переход типа — сигнал для исследования, а не доказательство структурного сдвига.</p>
