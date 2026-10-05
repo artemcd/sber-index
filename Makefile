@@ -1,6 +1,6 @@
 PYTHON = uv run --locked python
 
-.PHONY: all audit baseline graph validate dynamic compare interpret site serve
+.PHONY: all audit baseline graph validate dynamic compare interpret crosswalk population external site serve
 
 all: site
 
@@ -25,8 +25,18 @@ compare: dynamic
 interpret: compare
 	$(PYTHON) scripts/interpret_clusters.py
 
-site: interpret
+crosswalk: interpret
+	$(PYTHON) scripts/build_oktmo_crosswalk.py
+
+population: crosswalk
+	$(PYTHON) scripts/prepare_population.py
+
+external: population
+	$(PYTHON) scripts/run_population_model.py
+
+site: external
 	$(PYTHON) scripts/build_site_data.py
+	$(PYTHON) scripts/build_external_site_data.py
 
 serve:
 	python3 -m http.server 8000 -d site

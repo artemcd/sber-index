@@ -267,6 +267,15 @@ button, a { -webkit-tap-highlight-color: transparent; }
   gap: 16px;
 }
 
+.type-grid-four { grid-template-columns: repeat(2, 1fr); }
+.type-grid-four .type-card { min-height: 330px; }
+.type-grid-four .type-card h3 { margin-top: 35px; }
+.type-grid-four .type-card dl { margin-top: 35px; }
+.hero-external { min-height: 650px; }
+.hero-external h1 { max-width: 940px; }
+.external-note { max-width: 430px; color: #a6b6b7; font-size: 14px; }
+.matched-note { margin-top: -28px; font-size: 16px; }
+
 .type-card {
   position: relative;
   min-height: 410px;
