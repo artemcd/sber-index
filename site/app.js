@@ -205,6 +205,35 @@ function renderModels() {
   }).join("");
 }
 
+function formatMonth(value) {
+  const [year, month] = value.split("-").map(Number);
+  return new Intl.DateTimeFormat("ru-RU", {month: "long", year: "numeric"})
+    .format(new Date(Date.UTC(year, month - 1, 1)));
+}
+
+function renderSignals() {
+  document.querySelector("#signal-cards").innerHTML = dataset.signals.map((signal, index) => `
+    <article class="signal-card" style="--from-color: ${colors[signal.fromCluster]}; --to-color: ${colors[signal.toCluster]}">
+      <div class="signal-card-head"><span>НАБЛЮДЕНИЕ 0${index + 1}</span><strong>${formatMonth(signal.date)}</strong></div>
+      <h3>${signal.name}</h3>
+      <p class="signal-region">${signal.region}</p>
+      <div class="signal-path">
+        <div><span></span><small>Было</small><strong>${signal.fromName}</strong></div>
+        <b>→</b>
+        <div><span></span><small>Стало</small><strong>${signal.toName}</strong></div>
+      </div>
+      <dl class="signal-facts">
+        <div><dt>${signal.months}</dt><dd>месяцев подряд</dd></div>
+        <div><dt>${formatNumber(signal.margin * 100, 1)}%</dt><dd>относительный отрыв</dd></div>
+      </dl>
+      <button class="signal-open" data-signal-id="${signal.id}">Открыть в атласе</button>
+    </article>
+  `).join("");
+  document.querySelectorAll("[data-signal-id]").forEach(button => {
+    button.addEventListener("click", () => selectMunicipality(button.dataset.signalId, true));
+  });
+}
+
 async function start() {
   const response = await fetch("data.json");
   if (!response.ok) throw new Error(`Не удалось загрузить данные: ${response.status}`);
@@ -214,6 +243,7 @@ async function start() {
   renderSummary();
   renderClusters();
   renderMap();
+  renderSignals();
   renderModels();
   setupSearch();
   document.querySelector("#map-filters").addEventListener("click", event => {
