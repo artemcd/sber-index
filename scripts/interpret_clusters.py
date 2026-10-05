@@ -74,7 +74,14 @@ def read_metadata(path: Path = METADATA) -> pd.DataFrame:
 
 def trailing_run(values: pd.Series) -> int:
     array = values.to_numpy()
-    return int(np.sum(array[::-1] == array[-1]))
+    changes = np.flatnonzero(array[::-1] != array[-1])
+    return int(changes[0]) if changes.size else len(array)
+
+
+def check_trailing_run() -> None:
+    assert trailing_run(pd.Series([1, 1, 1])) == 3
+    assert trailing_run(pd.Series([1, 2, 2])) == 2
+    assert trailing_run(pd.Series([1, 2, 1])) == 1
 
 
 def stability_summary(assignments: pd.DataFrame) -> pd.DataFrame:
@@ -250,6 +257,7 @@ def format_profiles(profiles: pd.DataFrame) -> str:
 
 
 def main() -> None:
+    check_trailing_run()
     monthly, missing_market_ids = prepare_monthly()
     attributes = scaled_monthly(monthly)
     assignments = pd.read_csv(ASSIGNMENTS).sort_values(
@@ -395,6 +403,8 @@ def main() -> None:
 Ядро проводит в одном типе не менее 22 из 24 месяцев и имеет средний относительный
 отрыв от второго центра не меньше 0.15. Пограничным считается МО с доминирующим
 типом менее чем в 75% месяцев или средним отрывом меньше 0.10.
+Показатель `months_in_current_cluster` считает только непрерывную серию в конце
+наблюдений; более ранние пребывания в том же типе в него не входят.
 
 Помесячных смен типа: {int(current['transition_count'].sum())}. Из них выделено
 {len(events)} содержательных переходов, где предыдущий и новый режим держались
@@ -427,8 +437,9 @@ def main() -> None:
 - переход считается содержательным по правилу трёх месяцев, но не доказывает
   структурный экономический сдвиг без внешних данных.
 
-Следующий этап — интерактивный лендинг: карта, динамика типов, карточки профилей и
-паспорт муниципалитета с сопоставимыми территориями.
+Результаты представлены в [интерактивном атласе](https://artemcd.github.io/sber-index/):
+карта, динамика типов, примеры переходов и паспорт муниципалитета с сопоставимыми
+территориями.
 """
     REPORT.write_text(report, encoding="utf-8")
     print(f"Муниципалитеты: {OUTPUT.relative_to(ROOT)}")
