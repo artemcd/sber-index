@@ -11,6 +11,7 @@ MUNICIPALITIES = ROOT / "artifacts" / "interpretation" / "municipalities.csv"
 COMPARABLES = ROOT / "artifacts" / "interpretation" / "comparables.csv"
 MONTHLY = ROOT / "artifacts" / "dynamic" / "monthly_clusters.csv"
 COMPARISON = ROOT / "artifacts" / "comparison" / "model_summary.csv"
+K_SENSITIVITY = ROOT / "artifacts" / "comparison" / "cluster_count_sensitivity.csv"
 TRANSITIONS = ROOT / "artifacts" / "interpretation" / "persistent_transitions.csv"
 BOUNDARIES = ROOT / "data" / "raw" / "boundaries" / "t_dict_municipal_districts_poly.gpkg"
 OUTPUT = ROOT / "site" / "data.json"
@@ -64,6 +65,20 @@ def compact_models(frame: pd.DataFrame) -> list[dict]:
     ]
 
 
+def compact_cluster_sensitivity(frame: pd.DataFrame) -> list[dict]:
+    return [
+        {
+            "clusters": int(row["clusters"]),
+            "model": row["model"],
+            "silhouette": round(row["sw"], 4),
+            "temporalAri": round(row["temporal_ari"], 4),
+            "modularity": round(row["modularity"], 4),
+            "minClusterShare": round(row["min_cluster_share"], 4),
+        }
+        for _, row in frame.iterrows()
+    ]
+
+
 def featured_signals(frame: pd.DataFrame) -> list[dict]:
     selected = (
         frame[frame["new_run_months"] >= 6]
@@ -96,6 +111,7 @@ def main() -> None:
     comparables = pd.read_csv(COMPARABLES)
     monthly = pd.read_csv(MONTHLY).sort_values(["territory_id", "date"])
     models = pd.read_csv(COMPARISON)
+    cluster_sensitivity = pd.read_csv(K_SENSITIVITY)
     transitions = pd.read_csv(TRANSITIONS)
 
     municipalities = municipalities.merge(
@@ -170,6 +186,7 @@ def main() -> None:
         "clusters": cluster_profiles(municipalities),
         "signals": featured_signals(transitions),
         "models": compact_models(models),
+        "clusterSensitivity": compact_cluster_sensitivity(cluster_sensitivity),
         "municipalities": records,
     }
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)

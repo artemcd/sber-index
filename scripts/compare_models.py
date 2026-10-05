@@ -24,6 +24,7 @@ REFERENCE = ROOT / "artifacts" / "dynamic" / "monthly_clusters.csv"
 MONTHLY_OUTPUT = ROOT / "artifacts" / "comparison" / "monthly_metrics.csv"
 SUMMARY_OUTPUT = ROOT / "artifacts" / "comparison" / "model_summary.csv"
 REPORT = ROOT / "reports" / "model_comparison.md"
+K_SENSITIVITY = ROOT / "artifacts" / "comparison" / "cluster_count_sensitivity.csv"
 
 
 def s_dbw(attributes: np.ndarray, labels: np.ndarray) -> float:
@@ -127,18 +128,20 @@ def fit_models(
     static_attributes: np.ndarray,
     dynamic_attributes: np.ndarray,
     config: dict,
+    clusters: int | None = None,
 ) -> dict[str, np.ndarray]:
+    model_config = {**config, "clusters": clusters or config["clusters"]}
     gmm = GaussianMixture(
-        n_components=config["clusters"],
+        n_components=model_config["clusters"],
         covariance_type="diag",
         n_init=10,
         random_state=config["random_state"],
     )
     return {
-        "KMeans, признаки": fit_model(attributes, config).labels_,
+        "KMeans, признаки": fit_model(attributes, model_config).labels_,
         "GMM, признаки": gmm.fit_predict(attributes),
-        "KMeans, статическая сеть": fit_model(static_attributes, config).labels_,
-        "KMeans, динамическая сеть": fit_model(dynamic_attributes, config).labels_,
+        "KMeans, статическая сеть": fit_model(static_attributes, model_config).labels_,
+        "KMeans, динамическая сеть": fit_model(dynamic_attributes, model_config).labels_,
     }
 
 
@@ -208,6 +211,40 @@ def summarize(
     return result.set_index("model").loc[list(models)].reset_index()
 
 
+def sweep_cluster_counts(
+    dates: np.ndarray,
+    attributes: np.ndarray,
+    graphs: list[sparse.csr_matrix],
+    static_attributes: np.ndarray,
+    dynamic_attributes: np.ndarray,
+    config: dict,
+    node_count: int,
+) -> pd.DataFrame:
+    rows = []
+    for clusters in config["cluster_counts"]:
+        candidates = fit_models(
+            attributes,
+            static_attributes,
+            dynamic_attributes,
+            config,
+            clusters,
+        )
+        metrics = calculate_metrics(dates, attributes, graphs, candidates, node_count)
+        summary = summarize(metrics, candidates, node_count)
+        summary.insert(0, "clusters", clusters)
+        summary["min_cluster_share"] = summary["model"].map(
+            {
+                name: min(
+                    np.bincount(month_labels, minlength=clusters).min() / node_count
+                    for month_labels in labels.reshape(-1, node_count)
+                )
+                for name, labels in candidates.items()
+            }
+        )
+        rows.extend(summary.to_dict("records"))
+    return pd.DataFrame(rows)
+
+
 def format_table(frame: pd.DataFrame) -> str:
     result = frame.copy()
     for column in ["sw", "s_dbw", "avi", "avu", "anui", "mq", "modularity"]:
@@ -265,10 +302,20 @@ def main() -> None:
         monthly["date"].unique(), attributes, graphs, models, node_count
     )
     summary = summarize(metrics, models, node_count)
+    cluster_sensitivity = sweep_cluster_counts(
+        monthly["date"].unique(),
+        attributes,
+        graphs,
+        static_attributes,
+        dynamic_attributes,
+        config,
+        node_count,
+    )
     MONTHLY_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     REPORT.parent.mkdir(parents=True, exist_ok=True)
     metrics.to_csv(MONTHLY_OUTPUT, index=False, float_format="%.6f")
     summary.to_csv(SUMMARY_OUTPUT, index=False, float_format="%.6f")
+    cluster_sensitivity.to_csv(K_SENSITIVITY, index=False, float_format="%.6f")
 
     best = {
         "SW": summary.loc[summary["sw"].idxmax(), "model"],
@@ -310,6 +357,18 @@ def main() -> None:
 ```text
 {format_table(summary)}
 ```
+
+## Чувствительность к числу кластеров
+
+Методы сравниваются при одинаковом транспортном графе и выбранной ширине
+экономического ядра. Метрики оценивают разные свойства, поэтому таблица служит
+для выбора разумного диапазона K, а не единственного математического оптимума.
+
+```text
+{cluster_sensitivity.to_string(index=False, float_format=lambda value: f"{value:.4f}")}
+```
+
+Полная таблица сохранена в `artifacts/comparison/cluster_count_sensitivity.csv`.
 
 Лучший метод по каждому показателю:
 

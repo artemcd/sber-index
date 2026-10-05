@@ -31,6 +31,7 @@ def load_config(path: Path = CONFIG) -> dict:
     config = json.loads(path.read_text(encoding="utf-8"))
     required = {
         "clusters",
+        "cluster_counts",
         "highway_neighbors",
         "railway_neighbors",
         "rail_weight",
@@ -41,6 +42,14 @@ def load_config(path: Path = CONFIG) -> dict:
     }
     if set(config) != required:
         raise SystemExit(f"Поля конфигурации должны быть: {sorted(required)}")
+    cluster_counts = config["cluster_counts"]
+    if (
+        not cluster_counts
+        or cluster_counts != sorted(set(cluster_counts))
+        or cluster_counts[0] < 2
+        or config["clusters"] not in cluster_counts
+    ):
+        raise SystemExit("Проверьте сетку числа кластеров")
     if config["clusters"] != len(CLUSTER_NAMES):
         raise SystemExit("Для текущих названий типов требуется три кластера")
     return config
