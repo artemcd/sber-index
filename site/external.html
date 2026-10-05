@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Атлас муниципальных экономик: СберИндекс и население Росстата">
+  <title>Локальный код — СберИндекс + Росстат</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="external.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="Локальный код — на главную"><span class="brand-mark">ЛК</span><span>Локальный код</span></a>
+    <nav aria-label="Режим данных">
+      <a href="index.html">Только СберИндекс</a>
+      <a href="external.html" aria-current="page">СберИндекс + Росстат</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero hero-external page-grid">
+      <div class="eyebrow">Второй режим · СберИндекс + Росстат · 2023–2024</div>
+      <h1>Та же экономика, <span>другой масштаб</span></h1>
+      <p class="hero-lead">К расходам и транспортному окружению добавлены численность населения и доля городских жителей. Это отдельная кластеризация на сопоставимой панели территорий.</p>
+      <div class="hero-actions"><a class="button button-primary" href="#atlas">Открыть атлас</a><a class="button button-secondary" href="index.html">Сравнить с режимом СберИндекса</a></div>
+      <dl class="hero-stats">
+        <div><dt id="stat-municipalities">—</dt><dd>муниципалитетов с полными данными</dd></div>
+        <div><dt>24</dt><dd>месяца наблюдений</dd></div>
+        <div><dt>4</dt><dd>типа в этом режиме</dd></div>
+        <div><dt>2</dt><dd>показателя населения</dd></div>
+      </dl>
+    </section>
+
+    <section class="intro page-grid" id="types">
+      <div class="section-heading"><span class="section-number">01</span><div><p class="eyebrow">Типы на расширенной панели</p><h2>Четыре разных контекста</h2></div></div>
+      <p class="section-lead">Названия описывают медианный профиль группы в декабре 2024 года. Это не оценка качества жизни и не рейтинг муниципалитетов.</p>
+      <div class="type-grid type-grid-four" id="cluster-cards"></div>
+    </section>
+
+    <section class="atlas-section" id="atlas">
+      <div class="page-grid">
+        <div class="section-heading section-heading-light"><span class="section-number">02</span><div><p class="eyebrow">Атлас расширенной модели</p><h2>Найдите свою территорию</h2></div></div>
+        <div class="atlas-toolbar">
+          <form class="search" id="search-form"><label for="municipality-search">Муниципалитет или регион</label><div class="search-row"><input id="municipality-search" list="municipality-list" autocomplete="off" placeholder="Например, Казань"><datalist id="municipality-list"></datalist><button type="submit">Показать</button></div></form>
+          <div class="filters" id="map-filters" aria-label="Фильтр по типу"></div>
+        </div>
+      </div>
+      <div class="map-wrap"><svg id="map" viewBox="0 0 1000 440" role="img" aria-label="Схематичная карта муниципалитетов России"></svg><div class="map-caption">Схематичное положение центров · декабрь 2024</div><div class="tooltip" id="map-tooltip" hidden></div></div>
+      <article class="passport page-grid" id="passport" aria-live="polite">
+        <div class="passport-title"><p class="eyebrow" id="passport-region"></p><h3 id="passport-name"></h3><p id="passport-full-name"></p></div>
+        <div class="passport-type"><span class="type-dot" id="passport-dot"></span><div><small>Тип в декабре 2024</small><strong id="passport-cluster"></strong></div></div>
+        <dl class="passport-metrics">
+          <div><dt id="passport-population">—</dt><dd>жителей, 2024</dd></div>
+          <div><dt id="passport-urban">—</dt><dd>городских жителей</dd></div>
+          <div><dt id="passport-spend">—</dt><dd>индекс расходов</dd></div>
+          <div><dt id="passport-access">—</dt><dd>доступность рынков</dd></div>
+        </dl>
+        <div class="timeline-block"><div class="timeline-heading"><h4>Динамика типа</h4><span>январь 2023 → декабрь 2024</span></div><div class="timeline" id="passport-timeline"></div></div>
+        <div class="comparables-block"><div class="timeline-heading"><h4>Что входит в модель</h4></div><p class="external-note">Расходы по категориям, доступность рынков, логарифм численности населения и доля городских жителей. Годовой показатель населения повторяется во всех месяцах соответствующего года.</p></div>
+      </article>
+    </section>
+
+    <section class="method page-grid" id="method">
+      <div class="section-heading"><span class="section-number">03</span><div><p class="eyebrow">Проверка выбора K</p><h2>Сколько типов достаточно?</h2></div></div>
+      <p class="section-lead">K=2 даёт более высокий silhouette, но слишком грубо объединяет разные городские контексты. K=4 показывает содержательное разделение; минимальный кластер занимает около 9,4% территорий. Это исследовательский выбор, а не доказанный оптимум.</p>
+      <p class="section-lead matched-note">На одной и той же панели из 1923 территорий, при K=4 и одинаковых параметрах модели, средний ARI между разбиениями без населения и с населением — <strong id="matched-ari">—</strong> (1 означало бы полное совпадение). Это отдельный контрольный расчёт; первый дашборд использует K=3 и все 2016 территорий.</p>
+      <div class="model-card"><div><p class="eyebrow">Четыре метода, K=4</p><h3>Разные критерии — разные лидеры</h3><p>Метрики рассчитаны на одних 1923 территориях. Silhouette — выборочная оценка по признакам, ARI показывает сходство соседних месяцев, модулярность — разделение на графе. GMM оказалась чувствительна к исключению двух повторных строк; для карты выбран динамический KMeans.</p></div><div class="model-table-wrap"><table><thead><tr><th>Модель</th><th>SW ↑</th><th>ARI во времени ↑</th><th>Модулярность ↑</th></tr></thead><tbody id="model-table"></tbody></table></div></div>
+      <div class="cluster-chart-card"><div class="cluster-chart-heading"><div><p class="eyebrow">Чувствительность к K</p><h3>Четыре модели при K=2–8</h3></div><label for="cluster-chart-metric">Показатель<select id="cluster-chart-metric"><option value="silhouette">Silhouette</option><option value="temporalAri">ARI во времени</option><option value="modularity">Модулярность</option><option value="minClusterShare">Доля минимального кластера</option></select></label></div><svg id="cluster-chart" viewBox="0 0 760 300" role="img" aria-label="Метрики четырёх моделей по числу кластеров"></svg><div class="cluster-chart-legend" id="cluster-chart-legend"></div><p class="chart-note">Второй режим использует только территории с надёжным сопоставлением данных населения за оба года. Сравнивать абсолютные метрики с первым режимом без выравнивания панелей нельзя.</p></div>
+      <div class="limits"><h3>Ограничения</h3><p>Добавлены только официальные данные о населении за 2023 и 2024 годы. Зарплаты и отраслевая занятость пока не входят в модель. Несопоставленные территории исключены, поэтому охват — 1923 из 2016. Типы построены ретроспективно и не объясняют причины различий.</p></div>
+    </section>
+  </main>
+  <footer><div><strong>Локальный код</strong><span>Расширенный режим</span></div><p>СберИндекс (CC BY-SA 4.0); Росстат, «Численность населения РФ по муниципальным образованиям» на 1 января 2023 и 2024 года.</p><a href="https://github.com/artemcd/sber-index">Код и метод</a></footer>
+  <noscript>Для интерактивной карты необходимо включить JavaScript.</noscript>
+</body>
+</html>

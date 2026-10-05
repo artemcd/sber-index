@@ -78,8 +78,8 @@ def prepare_monthly() -> tuple[pd.DataFrame, list[int]]:
     return monthly, list(map(int, missing_ids))
 
 
-def scaled_monthly(monthly: pd.DataFrame) -> np.ndarray:
-    frame = monthly[FEATURES].copy()
+def scaled_monthly(monthly: pd.DataFrame, features: list[str] = FEATURES) -> np.ndarray:
+    frame = monthly[features].copy()
     shares = list(CATEGORIES.values())
     frame[shares] -= monthly.groupby("date")[shares].transform("median")
     return StandardScaler().fit_transform(frame)
