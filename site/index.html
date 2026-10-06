@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Интерактивная типология экономик российских муниципалитетов на данных СберИндекса">
   <title>Локальный код — экономические типы муниципалитетов</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="app.js" defer></script>
+  <link rel="stylesheet" href="styles.css?v=4">
+  <script src="app.js?v=3" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -17,9 +17,8 @@
     <nav aria-label="Навигация по странице">
       <a href="#types">Типы</a>
       <a href="#atlas">Атлас</a>
-      <a href="#signals">Сигналы</a>
       <a href="#method">Метод</a>
-      <a href="external.html">+ Росстат</a>
+      <a href="external.html">СберИндекс + Росстат</a>
     </nav>
   </header>
 
@@ -30,7 +29,7 @@
       <p class="hero-lead">Мы нашли три устойчивых типа локальных экономик и проследили, как 2016 муниципалитетов менялись месяц за месяцем.</p>
       <div class="hero-actions">
         <a class="button button-primary" href="#atlas">Найти муниципалитет</a>
-        <a class="button button-secondary" href="external.html">Режим с населением Росстата</a>
+        <a class="button button-secondary" href="external.html">СберИндекс + Росстат</a>
       </div>
       <div class="hero-orbit" aria-hidden="true">
         <span class="orbit orbit-one"></span>
@@ -44,6 +43,7 @@
         <div><dt>3</dt><dd>экономических типа</dd></div>
         <div><dt id="stat-transitions">215</dt><dd>устойчивых переходов</dd></div>
       </dl>
+      <p class="hero-footnote">Ядро: один тип минимум в 22 из 24 месяцев при среднем относительном отрыве не менее 15%. Переход: типы до и после смены держались минимум по три месяца.</p>
     </section>
 
     <section class="intro page-grid" id="types">
@@ -107,6 +107,7 @@
           <div><dt id="passport-months">—</dt><dd>месяцев в текущем типе</dd></div>
           <div><dt id="passport-stability">—</dt><dd>устойчивость</dd></div>
         </dl>
+        <p class="passport-note">Индекс расходов: 100 — медиана муниципалитетов за месяц. Доступность рынков — исходный индекс СберИндекса: большее значение означает более высокую доступность.</p>
         <div class="timeline-block">
           <div class="timeline-heading"><h4>Динамика типа</h4><span>январь 2023 → декабрь 2024</span></div>
           <div class="timeline" id="passport-timeline"></div>
@@ -169,7 +170,7 @@
 
       <div class="cluster-chart-card">
         <div class="cluster-chart-heading">
-          <div><p class="eyebrow">Чувствительность к K</p><h3>Как меняются модели при разном числе типов</h3></div>
+          <div><p class="eyebrow">K — число типов</p><h3>Как меняются модели при разном числе типов</h3></div>
           <label for="cluster-chart-metric">Показатель
             <select id="cluster-chart-metric">
               <option value="silhouette">Silhouette</option>
@@ -181,7 +182,21 @@
         </div>
         <svg id="cluster-chart" viewBox="0 0 760 300" role="img" aria-label="Сравнение метрик моделей при разном числе кластеров"></svg>
         <div class="cluster-chart-legend" id="cluster-chart-legend"></div>
+        <dl class="metric-glossary">
+          <div><dt>SW / silhouette ↑</dt><dd>Насколько территории ближе к своему кластеру, чем к соседнему. Выше — группы разделены лучше.</dd></div>
+          <div><dt>ARI во времени ↑</dt><dd>Сходство разбиений соседних месяцев с поправкой на случайность. 1 — полное совпадение.</dd></div>
+          <div><dt>Модулярность ↑</dt><dd>Преобладание веса связей внутри кластеров по сравнению со случайной моделью графа.</dd></div>
+          <div><dt>Доля минимального кластера</dt><dd>Доля территорий в самой маленькой группе. Помогает заметить слишком дробное разбиение.</dd></div>
+        </dl>
         <p class="chart-note">Одна и та же панель и параметры сети; K меняется от 2 до 8. Метрики не сводятся в один рейтинг.</p>
+      </div>
+
+      <div class="density-card">
+        <p class="eyebrow">Плотностная альтернатива</p>
+        <h3>HDBSCAN против KMeans</h3>
+        <p>Средние значения за 24 месяца на одних признаках и динамической сети. Для атласа оставлен KMeans: он назначает тип всем территориям, а HDBSCAN выделяет только плотные группы.</p>
+        <div class="model-table-wrap"><table><thead><tr><th>Модель</th><th>Доля МО</th><th>Групп</th><th>SW ↑</th></tr></thead><tbody id="density-table"></tbody></table></div>
+        <p class="chart-note">HDBSCAN: min_cluster_size=50, min_samples=10; K не задаётся. SW на назначенных территориях нельзя напрямую сравнивать с SW на всей панели. Строка KMeans на тех же территориях даёт сопоставимую базу.</p>
       </div>
 
       <div class="limits">

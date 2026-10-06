@@ -180,7 +180,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   border-radius: 50%;
 }
 
-.orbit::after {
+.orbit-two::after, .orbit-three::after {
   position: absolute;
   width: 16px;
   height: 16px;
@@ -190,7 +190,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 
 .orbit-one { inset: 0; transform: rotate(-18deg); }
-.orbit-one::after { top: 28px; left: 72px; background: var(--cluster-1); }
 .orbit-two { inset: 50px; transform: rotate(25deg); }
 .orbit-two::after { right: 18px; bottom: 66px; background: var(--cluster-2); }
 .orbit-three { inset: 102px; transform: rotate(-45deg); }
@@ -226,6 +225,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .hero-stats dt { font-size: 30px; font-weight: 700; letter-spacing: -.04em; }
 
 .hero-stats dd { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+.hero-footnote { max-width: 850px; margin: 14px 0 0; color: var(--muted); font-size: 12px; }
 
 .intro, .signals, .method { padding-block: 110px; }
 
@@ -271,8 +271,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .type-grid-four .type-card { min-height: 330px; }
 .type-grid-four .type-card h3 { margin-top: 35px; }
 .type-grid-four .type-card dl { margin-top: 35px; }
-.hero-external { min-height: 650px; }
-.hero-external h1 { max-width: 940px; }
 .external-note { max-width: 430px; color: #a6b6b7; font-size: 14px; }
 .matched-note { margin-top: -28px; font-size: 16px; }
 
@@ -333,14 +331,12 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .section-heading-light h2 { color: white; }
 
 .atlas-toolbar {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 36px;
+  display: grid;
+  gap: 18px;
   margin: 48px 0 28px 72px;
 }
 
-.search { flex: 1; max-width: 550px; }
+.search { width: min(550px, 100%); }
 .search label { display: block; margin-bottom: 8px; color: #a9b9ba; font-size: 12px; }
 .search-row { display: flex; }
 .search input {
@@ -364,7 +360,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   cursor: pointer;
 }
 
-.filters { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+.filters { display: flex; flex-wrap: wrap; gap: 7px; }
 
 .filter {
   display: inline-flex;
@@ -455,6 +451,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .passport-metrics div { padding: 20px 16px 20px 0; }
 .passport-metrics dt { font-size: 25px; font-weight: 700; }
 .passport-metrics dd { margin: 3px 0 0; color: #9eb0b1; font-size: 11px; }
+.passport-note { grid-column: 1 / -1; margin: -26px 0 0; color: #9eb0b1; font-size: 12px; }
 
 .timeline-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .timeline-heading h4 { margin: 0; font-size: 15px; }
@@ -580,7 +577,19 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .cluster-chart-legend { display: flex; flex-wrap: wrap; gap: 12px 22px; margin-top: 8px; }
 .cluster-chart-legend span { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
 .cluster-chart-legend i { width: 9px; height: 9px; border-radius: 50%; }
+.metric-glossary { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px 28px; margin: 24px 0 0; }
+.metric-glossary div { padding-top: 12px; border-top: 1px solid var(--line); }
+.metric-glossary dt { font-size: 13px; font-weight: 700; }
+.metric-glossary dd { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
 .chart-note { margin: 20px 0 0; color: var(--muted); font-size: 12px; }
+
+.density-card { margin-top: 18px; padding: 34px 40px; border: 1px solid var(--line); border-radius: var(--radius); background: white; }
+.density-card h3 { margin: 0; font-size: 25px; letter-spacing: -.03em; }
+.density-card > p:not(.eyebrow) { color: var(--muted); font-size: 13px; }
+.density-card table { width: 100%; margin-top: 20px; border-collapse: collapse; font-size: 13px; }
+.density-card th, .density-card td { padding: 12px; border-bottom: 1px solid var(--line); text-align: right; }
+.density-card th { color: var(--muted); font-size: 10px; text-transform: uppercase; }
+.density-card th:first-child, .density-card td:first-child { text-align: left; }
 
 .limits { display: grid; grid-template-columns: 240px 1fr; gap: 56px; margin-top: 60px; padding-top: 28px; border-top: 1px solid var(--line); }
 .limits h3 { margin: 0; font-size: 16px; }

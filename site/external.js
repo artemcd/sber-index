@@ -17,10 +17,12 @@ const project = (lon, lat) => [35 + (((lon < 0 ? lon + 360 : lon) - 19) / 171) *
 let dataset;
 let municipalities;
 let selectedId;
+let searchLabels;
 const circles = new Map();
 
 function renderTypes() {
-  document.querySelector("#stat-municipalities").textContent = number(dataset.meta.municipalities);
+  document.querySelector("#stat-municipalities").textContent = number(dataset.meta.totalMunicipalities);
+  document.querySelector("#stat-matched").textContent = number(dataset.meta.municipalities);
   document.querySelector("#cluster-cards").innerHTML = dataset.clusters.map(cluster => `
     <article class="type-card" style="--cluster-color: ${colors[cluster.id]}">
       <div class="type-card-head"><span class="type-index">ТИП 0${cluster.id}</span><span class="type-swatch"></span></div>
@@ -51,7 +53,7 @@ function selectMunicipality(id, scroll = false) {
     access: number(item.marketAccess, 1)
   })) document.querySelector(`#passport-${field}`).textContent = value;
   document.querySelector("#passport-dot").style.background = colors[item.cluster];
-  document.querySelector("#municipality-search").value = `${item.name} — ${item.region}`;
+  document.querySelector("#municipality-search").value = searchLabels.get(item.id);
   document.querySelector("#passport-timeline").replaceChildren(...item.trajectory.map((cluster, index) => {
     const mark = document.createElement("span");
     mark.style.background = colors[cluster];
@@ -114,17 +116,30 @@ function setupSearch() {
   input.addEventListener("input", () => input.setCustomValidity(""));
   const options = document.createDocumentFragment();
   const lookup = new Map();
+  const counts = new Map();
   municipalities.forEach(item => {
-    const label = `${item.name} — ${item.region}`;
+    const key = `${item.name} — ${item.region}`;
+    counts.set(key, (counts.get(key) || 0) + 1);
+  });
+  searchLabels = new Map();
+  municipalities.forEach(item => {
+    const key = `${item.name} — ${item.region}`;
+    const label = counts.get(key) > 1 ? `${key} · ${item.fullName}` : key;
     const option = document.createElement("option");
     option.value = label;
     options.append(option);
     lookup.set(label.toLocaleLowerCase("ru"), item.id);
+    searchLabels.set(item.id, label);
   });
   document.querySelector("#municipality-list").append(options);
   document.querySelector("#search-form").addEventListener("submit", event => {
     event.preventDefault();
     const query = input.value.trim().toLocaleLowerCase("ru");
+    if (!query) {
+      input.setCustomValidity("Введите муниципалитет или регион");
+      input.reportValidity();
+      return;
+    }
     const match = municipalities.get(lookup.get(query)) || [...municipalities.values()].find(item =>
       item.name.toLocaleLowerCase("ru").includes(query) || item.region.toLocaleLowerCase("ru").includes(query)
     );
@@ -145,6 +160,13 @@ function renderModels() {
       <td>${model.name.replace("KMeans, ", "")}</td><td>${model.silhouette.toFixed(3)}</td>
       <td>${model.temporalAri.toFixed(3)}</td><td>${model.modularity.toFixed(3)}</td>
     </tr>
+  `).join("");
+}
+
+function renderDensity() {
+  document.querySelector("#density-table").innerHTML = dataset.densityComparison.map(row => `
+    <tr><td>${row.name}</td><td>${number(row.coverage * 100, 1)}%</td>
+    <td>${number(row.clusters, 1)}</td><td>${number(row.silhouette, 3)}</td></tr>
   `).join("");
 }
 
@@ -194,7 +216,7 @@ function renderChart(metric = "silhouette") {
 }
 
 async function start() {
-  const response = await fetch("external-data.json");
+  const response = await fetch("external-data.json?v=3");
   if (!response.ok) throw new Error(`Не удалось загрузить данные: ${response.status}`);
   dataset = await response.json();
   municipalities = new Map(dataset.municipalities.map(item => [item.id, item]));
@@ -202,6 +224,7 @@ async function start() {
   renderMap();
   setupSearch();
   renderModels();
+  renderDensity();
   renderChart();
   document.querySelector("#cluster-chart-metric").addEventListener("change", event => renderChart(event.target.value));
   selectMunicipality(municipalities.has(354) ? 354 : municipalities.keys().next().value);

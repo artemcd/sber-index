@@ -12,6 +12,7 @@ COMPARABLES = ROOT / "artifacts" / "interpretation" / "comparables.csv"
 MONTHLY = ROOT / "artifacts" / "dynamic" / "monthly_clusters.csv"
 COMPARISON = ROOT / "artifacts" / "comparison" / "model_summary.csv"
 K_SENSITIVITY = ROOT / "artifacts" / "comparison" / "cluster_count_sensitivity.csv"
+DENSITY = ROOT / "artifacts" / "comparison" / "hdbscan_comparison.csv"
 TRANSITIONS = ROOT / "artifacts" / "interpretation" / "persistent_transitions.csv"
 BOUNDARIES = ROOT / "data" / "raw" / "boundaries" / "t_dict_municipal_districts_poly.gpkg"
 OUTPUT = ROOT / "site" / "data.json"
@@ -62,6 +63,22 @@ def compact_models(frame: pd.DataFrame) -> list[dict]:
             "temporalAri": round(row["temporal_ari"], 3),
         }
         for _, row in frame.iterrows()
+    ]
+
+
+def compact_density(mode: str) -> list[dict]:
+    frame = pd.read_csv(DENSITY)
+    frame = frame[frame["mode"] == mode]
+    if frame.groupby("model").size().ne(24).any() or frame["model"].nunique() != 3:
+        raise SystemExit(f"Неполное сравнение HDBSCAN: {mode}")
+    return [
+        {
+            "name": name,
+            "coverage": round(group["coverage"].mean(), 3),
+            "clusters": round(group["clusters"].mean(), 2),
+            "silhouette": round(group["silhouette"].mean(), 3),
+        }
+        for name, group in frame.groupby("model", sort=False)
     ]
 
 
@@ -186,6 +203,7 @@ def main() -> None:
         "clusters": cluster_profiles(municipalities),
         "signals": featured_signals(transitions),
         "models": compact_models(models),
+        "densityComparison": compact_density("СберИндекс"),
         "clusterSensitivity": compact_cluster_sensitivity(cluster_sensitivity),
         "municipalities": records,
     }

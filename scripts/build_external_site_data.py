@@ -2,7 +2,7 @@ import json
 
 import pandas as pd
 
-from build_site_data import MUNICIPALITIES, boundary_centers
+from build_site_data import MUNICIPALITIES, boundary_centers, compact_density
 from run_baseline import ROOT
 from run_population_model import ASSIGNMENTS, MATCHED_COMPARISON, POPULATION, SELECTED_K, SENSITIVITY
 
@@ -80,12 +80,13 @@ def main():
     if len(comparison) != 24:
         raise SystemExit("Ожидалось 24 месяца сравнения на общей панели")
     payload = {
-        "meta": {"municipalities": len(records), "months": 24, "clusters": SELECTED_K},
+        "meta": {"totalMunicipalities": len(municipalities), "municipalities": len(records), "months": 24, "clusters": SELECTED_K},
         "matchedAgreement": {
             "mean": round(comparison.ari_same_panel_same_k.mean(), 3),
             "december": round(comparison.ari_same_panel_same_k.iloc[-1], 3),
         },
         "clusters": profiles,
+        "densityComparison": compact_density("СберИндекс + Росстат"),
         "models": [
             {
                 "name": row.model,

@@ -17,6 +17,7 @@ let municipalityById;
 let circlesById = new Map();
 let activeCluster = 0;
 let selectedId;
+let searchLabels;
 
 const svg = document.querySelector("#map");
 const tooltip = document.querySelector("#map-tooltip");
@@ -162,7 +163,7 @@ function selectMunicipality(id, scroll = false) {
   document.querySelector("#passport-access").textContent = formatNumber(municipality.marketAccess, 1);
   document.querySelector("#passport-months").textContent = municipality.monthsCurrent;
   document.querySelector("#passport-stability").textContent = municipality.stability;
-  document.querySelector("#municipality-search").value = `${municipality.name} — ${municipality.region}`;
+  document.querySelector("#municipality-search").value = searchLabels.get(municipality.id);
   renderTimeline(municipality);
   renderComparables(municipality);
   if (scroll) document.querySelector("#passport").scrollIntoView({behavior: "smooth", block: "center"});
@@ -173,18 +174,32 @@ function setupSearch() {
   const search = document.querySelector("#municipality-search");
   const searchIndex = new Map();
   const options = document.createDocumentFragment();
+  const counts = new Map();
+  municipalities.forEach(item => {
+    const key = `${item.name} — ${item.region}`;
+    counts.set(key, (counts.get(key) || 0) + 1);
+  });
+  searchLabels = new Map();
   municipalities.forEach(municipality => {
-    const label = `${municipality.name} — ${municipality.region}`;
+    const key = `${municipality.name} — ${municipality.region}`;
+    const label = counts.get(key) > 1 ? `${key} · ${municipality.fullName}` : key;
     const option = document.createElement("option");
     option.value = label;
     options.append(option);
-    if (!searchIndex.has(label.toLocaleLowerCase("ru"))) searchIndex.set(label.toLocaleLowerCase("ru"), municipality.id);
+    searchIndex.set(label.toLocaleLowerCase("ru"), municipality.id);
+    searchLabels.set(municipality.id, label);
   });
   datalist.append(options);
+  search.addEventListener("input", () => search.setCustomValidity(""));
 
   document.querySelector("#search-form").addEventListener("submit", event => {
     event.preventDefault();
     const query = search.value.trim().toLocaleLowerCase("ru");
+    if (!query) {
+      search.setCustomValidity("Введите муниципалитет или регион");
+      search.reportValidity();
+      return;
+    }
     const exactId = searchIndex.get(query);
     const match = exactId ? municipalityById.get(exactId) : municipalities.find(item =>
       item.name.toLocaleLowerCase("ru").includes(query) || item.region.toLocaleLowerCase("ru").includes(query)
@@ -209,6 +224,13 @@ function renderModels() {
       <td>${model.modularity.toFixed(3)}</td>
     </tr>`;
   }).join("");
+}
+
+function renderDensity() {
+  document.querySelector("#density-table").innerHTML = dataset.densityComparison.map(row => `
+    <tr><td>${row.name}</td><td>${formatNumber(row.coverage * 100, 1)}%</td>
+    <td>${formatNumber(row.clusters, 1)}</td><td>${formatNumber(row.silhouette, 3)}</td></tr>
+  `).join("");
 }
 
 function renderClusterChart(metric = "silhouette") {
@@ -302,7 +324,7 @@ function renderSignals() {
 }
 
 async function start() {
-  const response = await fetch("data.json");
+  const response = await fetch("data.json?v=3");
   if (!response.ok) throw new Error(`Не удалось загрузить данные: ${response.status}`);
   dataset = await response.json();
   municipalities = dataset.municipalities;
@@ -312,6 +334,7 @@ async function start() {
   renderMap();
   renderSignals();
   renderModels();
+  renderDensity();
   renderClusterChart();
   document.querySelector("#cluster-chart-metric").addEventListener("change", event => renderClusterChart(event.target.value));
   setupSearch();

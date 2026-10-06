@@ -5,29 +5,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Атлас муниципальных экономик: СберИндекс и население Росстата">
   <title>Локальный код — СберИндекс + Росстат</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="external.js" defer></script>
+  <link rel="stylesheet" href="styles.css?v=4">
+  <script src="external.js?v=3" defer></script>
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="index.html" aria-label="Локальный код — на главную"><span class="brand-mark">ЛК</span><span>Локальный код</span></a>
-    <nav aria-label="Режим данных">
+    <a class="brand" href="#top" aria-label="Локальный код — на главную"><span class="brand-mark">ЛК</span><span>Локальный код</span></a>
+    <nav aria-label="Навигация по странице">
+      <a href="#types">Типы</a>
+      <a href="#atlas">Атлас</a>
+      <a href="#method">Метод</a>
       <a href="index.html">Только СберИндекс</a>
-      <a href="external.html" aria-current="page">СберИндекс + Росстат</a>
     </nav>
   </header>
 
-  <main>
-    <section class="hero hero-external page-grid">
+  <main id="top">
+    <section class="hero page-grid">
       <div class="eyebrow">Второй режим · СберИндекс + Росстат · 2023–2024</div>
       <h1>Та же экономика, <span>другой масштаб</span></h1>
       <p class="hero-lead">К расходам и транспортному окружению добавлены численность населения и доля городских жителей. Это отдельная кластеризация на сопоставимой панели территорий.</p>
-      <div class="hero-actions"><a class="button button-primary" href="#atlas">Открыть атлас</a><a class="button button-secondary" href="index.html">Сравнить с режимом СберИндекса</a></div>
+      <div class="hero-actions">
+        <a class="button button-primary" href="#atlas">Найти муниципалитет</a>
+        <a class="button button-secondary" href="index.html">Только СберИндекс</a>
+      </div>
+      <div class="hero-orbit" aria-hidden="true">
+        <span class="orbit orbit-one"></span>
+        <span class="orbit orbit-two"></span>
+        <span class="orbit orbit-three"></span>
+        <span class="orbit-core">24<br><small>месяца</small></span>
+      </div>
       <dl class="hero-stats">
-        <div><dt id="stat-municipalities">—</dt><dd>муниципалитетов с полными данными</dd></div>
+        <div><dt id="stat-municipalities">—</dt><dd>муниципалитетов в исходных данных</dd></div>
+        <div><dt id="stat-matched">—</dt><dd>сопоставлены с Росстатом</dd></div>
         <div><dt>24</dt><dd>месяца наблюдений</dd></div>
         <div><dt>4</dt><dd>типа в этом режиме</dd></div>
-        <div><dt>2</dt><dd>показателя населения</dd></div>
       </dl>
     </section>
 
@@ -55,6 +66,7 @@
           <div><dt id="passport-spend">—</dt><dd>индекс расходов</dd></div>
           <div><dt id="passport-access">—</dt><dd>доступность рынков</dd></div>
         </dl>
+        <p class="passport-note">Индекс расходов: 100 — медиана муниципалитетов за месяц. Доступность рынков — исходный индекс СберИндекса: большее значение означает более высокую доступность.</p>
         <div class="timeline-block"><div class="timeline-heading"><h4>Динамика типа</h4><span>январь 2023 → декабрь 2024</span></div><div class="timeline" id="passport-timeline"></div></div>
         <div class="comparables-block"><div class="timeline-heading"><h4>Что входит в модель</h4></div><p class="external-note">Расходы по категориям, доступность рынков, логарифм численности населения и доля городских жителей. Годовой показатель населения повторяется во всех месяцах соответствующего года.</p></div>
       </article>
@@ -64,12 +76,26 @@
       <div class="section-heading"><span class="section-number">03</span><div><p class="eyebrow">Проверка выбора K</p><h2>Сколько типов достаточно?</h2></div></div>
       <p class="section-lead">K=2 даёт более высокий silhouette, но слишком грубо объединяет разные городские контексты. K=4 показывает содержательное разделение; минимальный кластер занимает около 9,4% территорий. Это исследовательский выбор, а не доказанный оптимум.</p>
       <p class="section-lead matched-note">На одной и той же панели из 1923 территорий, при K=4 и одинаковых параметрах модели, средний ARI между разбиениями без населения и с населением — <strong id="matched-ari">—</strong> (1 означало бы полное совпадение). Это отдельный контрольный расчёт; первый дашборд использует K=3 и все 2016 территорий.</p>
-      <div class="model-card"><div><p class="eyebrow">Четыре метода, K=4</p><h3>Разные критерии — разные лидеры</h3><p>Метрики рассчитаны на одних 1923 территориях. Silhouette — выборочная оценка по признакам, ARI показывает сходство соседних месяцев, модулярность — разделение на графе. GMM оказалась чувствительна к исключению двух повторных строк; для карты выбран динамический KMeans.</p></div><div class="model-table-wrap"><table><thead><tr><th>Модель</th><th>SW ↑</th><th>ARI во времени ↑</th><th>Модулярность ↑</th></tr></thead><tbody id="model-table"></tbody></table></div></div>
-      <div class="cluster-chart-card"><div class="cluster-chart-heading"><div><p class="eyebrow">Чувствительность к K</p><h3>Четыре модели при K=2–8</h3></div><label for="cluster-chart-metric">Показатель<select id="cluster-chart-metric"><option value="silhouette">Silhouette</option><option value="temporalAri">ARI во времени</option><option value="modularity">Модулярность</option><option value="minClusterShare">Доля минимального кластера</option></select></label></div><svg id="cluster-chart" viewBox="0 0 760 300" role="img" aria-label="Метрики четырёх моделей по числу кластеров"></svg><div class="cluster-chart-legend" id="cluster-chart-legend"></div><p class="chart-note">Второй режим использует только территории с надёжным сопоставлением данных населения за оба года. Сравнивать абсолютные метрики с первым режимом без выравнивания панелей нельзя.</p></div>
+      <div class="model-card"><div><p class="eyebrow">Четыре метода, K=4</p><h3>Разные критерии — разные лидеры</h3><p>Метрики рассчитаны на одних 1923 территориях. GMM оказалась чувствительна к исключению двух повторных строк; для карты выбран динамический KMeans.</p></div><div class="model-table-wrap"><table><thead><tr><th>Модель</th><th>SW ↑</th><th>ARI во времени ↑</th><th>Модулярность ↑</th></tr></thead><tbody id="model-table"></tbody></table></div></div>
+      <div class="cluster-chart-card"><div class="cluster-chart-heading"><div><p class="eyebrow">K — число типов</p><h3>Четыре модели при K=2–8</h3></div><label for="cluster-chart-metric">Показатель<select id="cluster-chart-metric"><option value="silhouette">Silhouette</option><option value="temporalAri">ARI во времени</option><option value="modularity">Модулярность</option><option value="minClusterShare">Доля минимального кластера</option></select></label></div><svg id="cluster-chart" viewBox="0 0 760 300" role="img" aria-label="Метрики четырёх моделей по числу кластеров"></svg><div class="cluster-chart-legend" id="cluster-chart-legend"></div>
+        <dl class="metric-glossary">
+          <div><dt>SW / silhouette ↑</dt><dd>Насколько территории ближе к своему кластеру, чем к соседнему. Выше — группы разделены лучше.</dd></div>
+          <div><dt>ARI во времени ↑</dt><dd>Сходство разбиений соседних месяцев с поправкой на случайность. 1 — полное совпадение.</dd></div>
+          <div><dt>Модулярность ↑</dt><dd>Преобладание веса связей внутри кластеров по сравнению со случайной моделью графа.</dd></div>
+          <div><dt>Доля минимального кластера</dt><dd>Доля территорий в самой маленькой группе. Помогает заметить слишком дробное разбиение.</dd></div>
+        </dl>
+        <p class="chart-note">Второй режим использует только территории с надёжным сопоставлением данных населения за оба года. Сравнивать абсолютные метрики с первым режимом без выравнивания панелей нельзя.</p></div>
+      <div class="density-card">
+        <p class="eyebrow">Плотностная альтернатива</p>
+        <h3>HDBSCAN против KMeans</h3>
+        <p>Средние значения за 24 месяца на одних признаках и динамической сети. Для атласа оставлен KMeans: он назначает тип всем территориям, а HDBSCAN выделяет только плотные группы.</p>
+        <div class="model-table-wrap"><table><thead><tr><th>Модель</th><th>Доля МО</th><th>Групп</th><th>SW ↑</th></tr></thead><tbody id="density-table"></tbody></table></div>
+        <p class="chart-note">HDBSCAN: min_cluster_size=50, min_samples=10; K не задаётся. SW на назначенных территориях нельзя напрямую сравнивать с SW на всей панели. Строка KMeans на тех же территориях даёт сопоставимую базу.</p>
+      </div>
       <div class="limits"><h3>Ограничения</h3><p>Добавлены только официальные данные о населении за 2023 и 2024 годы. Зарплаты и отраслевая занятость пока не входят в модель. Несопоставленные территории исключены, поэтому охват — 1923 из 2016. Типы построены ретроспективно и не объясняют причины различий.</p></div>
     </section>
   </main>
-  <footer><div><strong>Локальный код</strong><span>Расширенный режим</span></div><p>СберИндекс (CC BY-SA 4.0); Росстат, «Численность населения РФ по муниципальным образованиям» на 1 января 2023 и 2024 года.</p><a href="https://github.com/artemcd/sber-index">Код и метод</a></footer>
+  <footer><div><strong>Локальный код</strong><span>Расширенный режим</span></div><p>СберИндекс (CC BY-SA 4.0); <a href="https://rosstat.gov.ru/compendium/document/13282">Росстат, численность населения по муниципальным образованиям</a> на 1 января 2023 и 2024 года.</p><a href="https://github.com/artemcd/sber-index">Код и метод</a></footer>
   <noscript>Для интерактивной карты необходимо включить JavaScript.</noscript>
 </body>
 </html>

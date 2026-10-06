@@ -1,6 +1,6 @@
 PYTHON = uv run --locked python
 
-.PHONY: all audit baseline graph validate dynamic compare interpret crosswalk population external site serve
+.PHONY: all audit baseline graph validate dynamic compare interpret crosswalk population external density site check serve
 
 all: site
 
@@ -16,7 +16,7 @@ graph: baseline
 validate: graph
 	$(PYTHON) scripts/validate_model.py
 
-dynamic: validate
+dynamic: graph
 	$(PYTHON) scripts/run_dynamic_model.py
 
 compare: dynamic
@@ -34,9 +34,16 @@ population: crosswalk
 external: population
 	$(PYTHON) scripts/run_population_model.py
 
-site: external
+density: external
+	$(PYTHON) scripts/compare_hdbscan.py
+
+site: density
 	$(PYTHON) scripts/build_site_data.py
 	$(PYTHON) scripts/build_external_site_data.py
+	python3 scripts/check_site.py
+
+check:
+	python3 scripts/check_site.py
 
 serve:
 	python3 -m http.server 8000 -d site
