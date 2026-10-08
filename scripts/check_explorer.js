@@ -2,6 +2,10 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const {summarizeTrajectories, median, cohortSeries, histogram, percentile, endpointFlows} = require("../site/overview.js");
+const {rosstatPanel} = require("../site/rosstat.js");
+const sample = [1, 2, 3].map(id => ({id, history: {spend: Array(12).fill(10).concat(Array(12).fill(30))}}));
+const context = {municipalities: [{id: 1, income: [0, 20]}, {id: 2, income: [null, 20]}]};
+assert.deepEqual(rosstatPanel(sample, context, "income").map(row => [row.id, row.values, row.spending]), [[1, [0, 20], [10, 30]]]);
 
 assert.equal(median([9, 1, 3]), 3);
 assert.equal(median([8, 2]), 5);

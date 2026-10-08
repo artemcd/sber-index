@@ -57,3 +57,19 @@ def check(name, html, script):
 base = check("data.json", "index.html", "app.js")
 external = check("external-data.json", "external.html", "external.js")
 assert external["meta"]["totalMunicipalities"] == base["meta"]["municipalities"]
+
+context = json.loads((SITE / "rosstat-data.json").read_text())
+assert context["years"] == [2023, 2024]
+assert {row["id"] for row in context["municipalities"]} == {row["id"] for row in base["municipalities"]}
+assert len(context["municipalities"]) == len(base["municipalities"])
+for metric in ("income", "housing", "investment"):
+    for row in context["municipalities"]:
+        assert len(row[metric]) == 2
+        assert all(v is None or (math.isfinite(v) and v >= 0) for v in row[metric])
+    assert sum(all(v is not None for v in row[metric]) for row in context["municipalities"]) == context["coverage"][metric]["both"]
+for name in ("index.html", "external.html"):
+    page = (SITE / name).read_text()
+    assert 'src="rosstat.js' in page
+    assert all(f'id="{metric}-chart"' in page for metric in ("income", "housing", "investment"))
+    assert page.index('id="data-details"') < page.index('id="data"') < page.index('id="income"') < page.index('id="basket"')
+print("Росстат: значения, охват и порядок разделов — OK")

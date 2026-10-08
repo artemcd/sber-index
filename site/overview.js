@@ -399,6 +399,7 @@ function createExplorer(data, palette, openMunicipality) {
     if (current) activateScene(current.target);
   }, {rootMargin: "-48% 0px -48% 0px"});
   steps.forEach(step => observer.observe(step));
+  if (steps.length) activateScene(steps[0]);
 
   function paintMap() {
     if (!map) return;

@@ -324,6 +324,9 @@ async function start(population = false) {
     document.querySelector("#cluster-chart-metric").addEventListener("change", event => renderClusterChart(event.target.value));
   }
   if (document.querySelector("#map, #studio-chart, #cohort-chart, #change-chart")) explorer = createExplorer(dataset, colors, id => selectMunicipality(id, true));
+  createRosstatContext(dataset, colors, id => selectMunicipality(id, true)).catch(error => {
+    document.querySelectorAll(".context-readout").forEach(element => { element.textContent = error.message; });
+  });
   if (document.querySelector("#signal-cards")) renderSignals();
   if (svg) {
     const query = new URLSearchParams(window.location.search);

@@ -46,6 +46,9 @@ data/raw/
   rosstat/
     BUL_MO_2023.xlsx
     BUL_MO_2024.xlsx
+    urov_2023_2024.xlsx
+    data_section3.parquet
+    data_section9.parquet
 ```
 
 3. Запустите из корня проекта:
@@ -65,6 +68,9 @@ make all
 сходством расходов. KMeans выделяет типы, общие для всех месяцев.
 Типология описывает прошлые наблюдения и не измеряет благополучие или причины изменений.
 В режиме Росстата добавлены население и доля городских жителей; зарплат и занятости нет.
+Доходы, строительство и инвестиции показаны отдельно от модели в обоих атласах.
+`make context` обновляет только эти графики из трёх файлов Росстата выше;
+[правила сопоставления и исключения](reports/rosstat_context.md).
 
 [Методология](reports/dynamic_clustering.md) · [Сравнение моделей и ICVI](reports/model_comparison.md) ·
 [Интерпретация](reports/cluster_interpretation.md) · [Росстат](reports/population_extension.md) ·
