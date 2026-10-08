@@ -73,7 +73,7 @@ function renderGrid() {
 }
 
 function showTooltip(event, municipality) {
-  tooltip.innerHTML = `<strong>${municipality.name}</strong><span>${municipality.region}<br>${dataset.clusters[municipality.trajectory[explorer?.month() ?? 23] - 1].name}</span>`;
+  tooltip.innerHTML = `<strong>${municipality.name}</strong><span>${municipality.region}<br>${dataset.clusters[municipality.trajectory[explorer?.month() ?? 11] - 1].name}</span>`;
   tooltip.hidden = false;
   tooltip.style.left = `${event.clientX + 14}px`;
   tooltip.style.top = `${event.clientY + 14}px`;
@@ -153,13 +153,13 @@ function setupSearch() {
   const options = document.createDocumentFragment();
   const counts = new Map();
   municipalities.forEach(item => {
-    const key = `${item.name} — ${item.region}`;
+    const key = `${item.name}, ${item.region}`;
     counts.set(key, (counts.get(key) || 0) + 1);
   });
   searchLabels = new Map();
   municipalities.forEach(municipality => {
-    const key = `${municipality.name} — ${municipality.region}`;
-    const label = counts.get(key) > 1 ? `${key} · ${municipality.fullName}` : key;
+    const key = `${municipality.name}, ${municipality.region}`;
+    const label = counts.get(key) > 1 ? `${key}, ${municipality.fullName}` : key;
     const option = document.createElement("option");
     option.value = label;
     options.append(option);
@@ -292,7 +292,7 @@ function renderSignals() {
         <div><dt>${signal.months}</dt><dd>месяцев подряд</dd></div>
         <div><dt>${formatNumber(signal.margin * 100, 1)}%</dt><dd>относительный отрыв</dd></div>
       </dl>
-      <button class="signal-open" data-signal-id="${signal.id}">Открыть в атласе</button>
+      <button class="signal-open" data-signal-id="${signal.id}">Открыть на карте</button>
     </article>
   `).join("");
   document.querySelectorAll("[data-signal-id]").forEach(button => {
@@ -330,8 +330,8 @@ async function start(population = false) {
   if (document.querySelector("#signal-cards")) renderSignals();
   if (svg) {
     const query = new URLSearchParams(window.location.search);
-    const month = query.has("month") ? Number(query.get("month")) : 23;
-    explorer.setMonth(Number.isInteger(month) && month >= 0 && month <= 23 ? month : 23);
+    const month = query.has("month") ? Number(query.get("month")) : 11;
+    explorer.setMonth(Number.isInteger(month) && month >= 0 && month <= 23 ? month : 11);
     const cluster = Number(query.get("cluster"));
     const requested = municipalityById.get(Number(query.get("id")));
     const candidate = cluster ? municipalities.find(item => item.trajectory[explorer.month()] === cluster) : municipalityById.get(354);

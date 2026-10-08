@@ -1,0 +1,6 @@
+{
+  "neighbors": [4, 8, 16, 32],
+  "bandwidths": [0.5, 1.0, 2.0],
+  "distances": ["euclidean", "cosine"],
+  "drop_together": ["marketplace_share", "log_market_access"]
+}

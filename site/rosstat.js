@@ -27,7 +27,7 @@ async function createRosstatContext(data, palette, openMunicipality) {
     return [metric, {element, rows: rosstatPanel(data.municipalities, context, metric), highlight: 0,
                     chart: element.querySelector("svg"), readout: element.querySelector(".context-readout")}];
   }));
-  const labels = new Map(data.municipalities.map(item => [`${item.name} — ${item.region}`, item.id]));
+  const labels = new Map(data.municipalities.map(item => [`${item.name}, ${item.region}`, item.id]));
   document.querySelector("#context-places").replaceChildren(...[...labels.keys()].sort((a, b) => a.localeCompare(b, "ru")).map(label => {
     const option = document.createElement("option"); option.value = label; return option;
   }));
@@ -35,7 +35,7 @@ async function createRosstatContext(data, palette, openMunicipality) {
   function choose(id) {
     selectedId = id;
     const item = data.municipalities.find(row => row.id === id);
-    Object.values(panels).forEach(panel => { panel.element.querySelector("input").value = item ? `${item.name} — ${item.region}` : ""; });
+    Object.values(panels).forEach(panel => { panel.element.querySelector("input").value = item ? `${item.name}, ${item.region}` : ""; });
     drawAll();
   }
   function point(panel, item, x, y, label, radius = 3) {
@@ -68,8 +68,8 @@ async function createRosstatContext(data, palette, openMunicipality) {
     const region = panel.element.querySelector(".context-region")?.value ?? "";
     const rows = panel.rows.filter(item => !region || item.region === region);
     chart.replaceChildren();
-    panel.element.querySelector("figcaption").textContent = `${titles[metric]}${metric === "investment" ? "" : ` · ${2023 + year}`}`;
-    panel.element.querySelector(".context-coverage").textContent = `${format(rows.length)} из ${format(data.municipalities.filter(item => !region || item.region === region).length)} территорий · одна панель за оба года`;
+    panel.element.querySelector("figcaption").textContent = `${titles[metric]}${metric === "investment" ? "" : `, ${2023 + year}`}`;
+    panel.element.querySelector(".context-coverage").textContent = `${format(rows.length)} из ${format(data.municipalities.filter(item => !region || item.region === region).length)} территорий, одна панель за оба года`;
     panel.element.querySelector(".context-open").disabled = selectedId === null;
     const selected = rows.find(item => item.id === selectedId);
     const chosen = data.municipalities.find(item => item.id === selectedId);
@@ -79,7 +79,7 @@ async function createRosstatContext(data, palette, openMunicipality) {
       const button = document.createElement("button"); button.type = "button";
       button.setAttribute("aria-pressed", String(panel.highlight === type.id));
       const mark = document.createElement("i"); mark.style.background = palette[type.id];
-      button.append(mark, document.createTextNode(`${type.name} · ${format(rows.filter(item => item.cluster === type.id).length)}`));
+      button.append(mark, document.createTextNode(`${type.name}, ${format(rows.filter(item => item.cluster === type.id).length)}`));
       button.addEventListener("click", () => { panel.highlight = panel.highlight === type.id ? 0 : type.id; draw(metric); });
       return button;
     }));
@@ -94,10 +94,10 @@ async function createRosstatContext(data, palette, openMunicipality) {
       for (let value = 0; value <= high; value += high / 4) chart.append(node("line", {x1: 68, x2: 760, y1: y(value), y2: y(value), class: "chart-grid"}),
         node("text", {x: 58, y: y(value) + 5, "text-anchor": "end", class: "chart-label"}, format(value / 1000)));
       chart.append(node("text", {x: 68, y: 22, class: "context-label"}, "Безналичные расходы, тыс. ₽ в месяц"),
-        node("text", {x: 760, y: 365, "text-anchor": "end", class: "context-label"}, `Доходы и выплаты, тыс. ₽/жителя${log ? " · лог. шкала" : ""}`));
+        node("text", {x: 760, y: 365, "text-anchor": "end", class: "context-label"}, `Доходы и выплаты, тыс. ₽/жителя${log ? ", лог. шкала" : ""}`));
       rows.forEach(item => point(panel, item, x(item.values[year]), y(item.spending[year]),
-        `${item.name} · ${item.region} · ${2023 + year}: доходы и выплаты ${format(item.values[year], 1)} тыс. ₽/жителя за год; расходы ${format(item.spending[year])} ₽/месяц.`));
-      if (selected) panel.readout.textContent = `${selected.name} · ${2023 + year}: ${format(selected.values[year], 1)} тыс. ₽/жителя за год; расходы ${format(selected.spending[year])} ₽/месяц.`;
+        `${item.name}, ${item.region}, ${2023 + year}: доходы и выплаты ${format(item.values[year], 1)} тыс. ₽/жителя за год; расходы ${format(item.spending[year])} ₽/месяц.`));
+      if (selected) panel.readout.textContent = `${selected.name}, ${2023 + year}: ${format(selected.values[year], 1)} тыс. ₽/жителя за год; расходы ${format(selected.spending[year])} ₽/месяц.`;
     } else if (metric === "housing") {
       const {x} = axis(chart, rows.flatMap(item => item.values), 70, 760, 310);
       const spacing = 240 / data.clusters.length;
@@ -110,12 +110,12 @@ async function createRosstatContext(data, palette, openMunicipality) {
         chart.append(node("line", {x1: x(percentile(values, .25)), x2: x(percentile(values, .75)), y1: y, y2: y,
           stroke: palette[type.id], "stroke-width": 20, opacity: .12}));
         group.forEach(item => point(panel, item, x(item.values[year]), y + ((item.id * 37 % 29) - 14),
-          `${item.name} · ${item.region} · ${2023 + year}: ${format(item.values[year], 3)} м²/жителя; ${type.name}.`, 2.5));
+          `${item.name}, ${item.region}, ${2023 + year}: ${format(item.values[year], 3)} м²/жителя; ${type.name}.`, 2.5));
         chart.append(node("line", {x1: x(middle), x2: x(middle), y1: y - 18, y2: y + 18, stroke: "#fff", "stroke-width": 2}),
           node("text", {x: x(middle) + 8, y: y - 24, class: "context-label"}, `медиана ${format(middle, 2)}`));
       });
       chart.append(node("text", {x: 760, y: 365, "text-anchor": "end", class: "context-label"}, "Введено жилья, м² на жителя за год"));
-      if (selected) panel.readout.textContent = `${selected.name} · ${2023 + year}: ${format(selected.values[year], 3)} м²/жителя за год.`;
+      if (selected) panel.readout.textContent = `${selected.name}, ${2023 + year}: ${format(selected.values[year], 3)} м²/жителя за год.`;
     } else {
       const order = panel.element.querySelector(".context-order").value;
       const score = item => order === "growth" ? item.values[1] - item.values[0] : item.values[1];
@@ -127,16 +127,16 @@ async function createRosstatContext(data, palette, openMunicipality) {
         const y = 57 + index * 34;
         const name = item.name.length > 20 ? `${item.name.slice(0, 19)}…` : item.name;
         const label = node("text", {x: 200, y: y + 5, "text-anchor": "end", class: "context-label"}, name);
-        label.append(node("title", {}, `${item.name} · ${item.region}`)); chart.append(label);
+        label.append(node("title", {}, `${item.name}, ${item.region}`)); chart.append(label);
         chart.append(node("line", {x1: x(item.values[0]), x2: x(item.values[1]), y1: y, y2: y, stroke: palette[item.cluster],
           "stroke-width": 2, opacity: !panel.highlight || panel.highlight === item.cluster ? .7 : .08}));
-        const detail = `${item.name} · ${item.region}: ${format(item.values[0], 1)} → ${format(item.values[1], 1)} тыс. ₽/жителя; изменение ${format(item.values[1] - item.values[0], 1)} тыс. ₽.`;
+        const detail = `${item.name}, ${item.region}: ${format(item.values[0], 1)} → ${format(item.values[1], 1)} тыс. ₽/жителя; изменение ${format(item.values[1] - item.values[0], 1)} тыс. ₽.`;
         const before = point(panel, item, x(item.values[0]), y, detail, 5);
         before.setAttribute("fill", "#080f1c"); before.setAttribute("stroke", palette[item.cluster]); before.setAttribute("stroke-width", "2");
         point(panel, item, x(item.values[1]), y, detail, 5);
         if (item.id === selectedId) panel.readout.textContent = detail;
       });
-      chart.append(node("text", {x: 738, y: 365, "text-anchor": "end", class: "context-label"}, `тыс. ₽/жителя за год${log ? " · лог. шкала" : ""}`));
+      chart.append(node("text", {x: 738, y: 365, "text-anchor": "end", class: "context-label"}, `тыс. ₽/жителя за год${log ? ", лог. шкала" : ""}`));
       panel.element.querySelector(".context-selection").textContent = `Показаны ${Math.min(7, rows.length)} лидеров ${order === "growth" ? "по приросту на жителя" : "по уровню 2024 года"}${selected && !shown.slice(0, 7).includes(selected) ? " и выбранная территория" : ""}.`;
     }
     chart.querySelectorAll(".context-dot.is-selected").forEach(circle => chart.append(circle));

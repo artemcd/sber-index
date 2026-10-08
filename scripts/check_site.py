@@ -1,4 +1,5 @@
 import json
+import hashlib
 import math
 from pathlib import Path
 
@@ -73,3 +74,33 @@ for name in ("index.html", "external.html"):
     assert all(f'id="{metric}-chart"' in page for metric in ("income", "housing", "investment"))
     assert page.index('id="data-details"') < page.index('id="data"') < page.index('id="income"') < page.index('id="basket"')
 print("Росстат: значения, охват и порядок разделов — OK")
+
+research = json.loads((SITE / "research-data.json").read_text())
+assert research["scope"] == "base_monthly"
+assert len(research["networks"]) == 4 and len(research["external"]) == 6
+page = (SITE / "index.html").read_text()
+assert page.index('id="research"') < page.index('id="research-networks"') < page.index('id="research-external"') < page.index('id="result"')
+assert 'src="research.js' in page and (SITE / "research-method.md").is_file()
+print("Research: assets and section order OK")
+
+for name, digest in research["inputs"].items():
+    assert hashlib.sha256((SITE.parent / name).read_bytes()).hexdigest() == digest, f"Устарели исследования: {name}; выполните make research"
+
+sensitivity = json.loads((SITE / "sensitivity-data.json").read_text())
+assert sensitivity["scope"] == "base_monthly" and len(sensitivity["ablations"]) == 8
+assert len(sensitivity["networks"]) == 24
+assert page.index('id="research"') < page.index('id="research-features"') < page.index('id="research-networks"')
+assert 'src="sensitivity.js' in page and (SITE / "sensitivity-method.md").is_file()
+for name, digest in sensitivity["inputs"].items():
+    assert hashlib.sha256((SITE.parent / name).read_bytes()).hexdigest() == digest, f"Устарела проверка чувствительности: {name}; выполните make sensitivity"
+print("Sensitivity: assets, section order and provenance OK")
+
+decisions = json.loads((SITE / "decision-data.json").read_text())
+assert decisions["scope"] == "base_monthly"
+assert [r["k"] for r in decisions["cluster_counts"]] == decisions["protocol"]["cluster_counts"]
+assert len(decisions["synthetic"]) == 4 * len(decisions["protocol"]["scenarios"])
+assert 'src="decision-checks.js' in page and (SITE / "decision-method.md").is_file()
+assert page.index('id="count-check"') < page.index('id="transition-check"') < page.index('id="result"')
+for name, digest in decisions["inputs"].items():
+    assert hashlib.sha256((SITE.parent / name).read_bytes()).hexdigest() == digest, f"Устарела проверка решений: {name}; выполните make decisions"
+print("Decisions: assets, section order and provenance OK")

@@ -1,0 +1,8 @@
+{
+  "subsamples": 20,
+  "sample_fraction": 0.8,
+  "economic_neighbors": 8,
+  "seed": 202410,
+  "folds": 5,
+  "ridge_alpha": 1.0
+}

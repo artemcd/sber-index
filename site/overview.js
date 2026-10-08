@@ -70,7 +70,7 @@ function createExplorer(data, palette, openMunicipality) {
       if (event.key === "Enter" || event.key === " ") { event.preventDefault(); action(); }
     });
   };
-  let month = 23;
+  let month = 11;
   let typeFilter = 0;
   let pair = null;
   let selected;
@@ -87,13 +87,13 @@ function createExplorer(data, palette, openMunicipality) {
   const byId = new Map(items.map(item => [item.id, item]));
   const peers = (target, candidates, index) => {
     target.replaceChildren(...candidates.slice(0, 3).map(item => {
-      const button = document.createElement("button"); button.type = "button"; button.textContent = `${item.name} · ${item.region}`;
+      const button = document.createElement("button"); button.type = "button"; button.textContent = `${item.name}, ${item.region}`;
       button.addEventListener("click", () => { setMonth(index); openMunicipality(item.id); });
       return button;
     }));
   };
 
-  let networkMonth = 23, networkLayer = "transport";
+  let networkMonth = 11, networkLayer = "transport";
   const place = document.querySelector("#network-place");
   data.exploration.networks.forEach(network => {
     const option = document.createElement("option"); option.value = network.center; option.textContent = byId.get(network.center).name; place.append(option);
@@ -105,7 +105,7 @@ function createExplorer(data, palette, openMunicipality) {
     const maximum = Math.max(...network.edges.flatMap(edge => edge.weights), ...network.edges.map(edge => edge.transport));
     document.querySelector("#network-month-label").textContent = monthName(networkMonth);
     const readout = document.querySelector("#network-readout");
-    readout.textContent = `${center.name} · ${network.edges.length} прямых соседей · ${networkLayer === "transport" ? "транспортный вес постоянен" : "вес зависит от сходства трат"}`;
+    readout.textContent = `${center.name}: ${network.edges.length} соседних территорий. ${networkLayer === "transport" ? "Связи определены по транспортным расстояниям и не меняются по месяцам." : "Связи учитывают транспорт и сходство расходов в выбранном месяце."}`;
     network.edges.forEach((edge, index) => {
       const angle = index / network.edges.length * Math.PI * 2 - Math.PI / 2;
       const cx = 400 + Math.cos(angle) * 290, cy = 186 + Math.sin(angle) * 155;
@@ -116,7 +116,7 @@ function createExplorer(data, palette, openMunicipality) {
       activate(line, label, () => { readout.textContent = label; });
       line.append(node("title", {}, label)); line.addEventListener("pointerenter", () => { readout.textContent = label; }); chart.append(line);
       const point = node("circle", {cx, cy, r: 7, class: "network-node"});
-      const show = () => { readout.textContent = `${neighbor.name} · ${neighbor.region} · ${number(neighbor.history.spend[networkMonth])} ₽/месяц · маркетплейсы ${number(neighbor.history.marketplace_share[networkMonth], 2)}%`; };
+      const show = () => { readout.textContent = `${neighbor.name}, ${neighbor.region}, ${number(neighbor.history.spend[networkMonth])} ₽/месяц, маркетплейсы ${number(neighbor.history.marketplace_share[networkMonth], 2)}%`; };
       activate(point, `${neighbor.name}, показать показатели`, show); point.addEventListener("pointerenter", show); point.addEventListener("focus", show); chart.append(point);
     });
     chart.append(node("circle", {cx: 400, cy: 186, r: 17, class: "network-center"}), node("text", {x: 400, y: 220, "text-anchor": "middle", class: "network-name"}, center.name));
@@ -136,18 +136,18 @@ function createExplorer(data, palette, openMunicipality) {
     const counts = new Map(); coverage.forEach(([, months]) => counts.set(months, (counts.get(months) || 0) + 1));
     const missing = coverage.filter(([id, months]) => months === 24 && !byId.has(id)).length;
     const readout = document.querySelector("#coverage-readout");
-    readout.textContent = `${number(items.length)} из ${number(coverage.length)} территорий в модели · ${number(items.length / coverage.length * 100, 1)}% исходного охвата`;
+    readout.textContent = `${number(items.length)} из ${number(coverage.length)} территорий в модели, ${number(items.length / coverage.length * 100, 1)}% исходного охвата`;
     const groups = [["#41dfc4", "В модели", items.length], ["#ffb454", "Неполный ряд", coverage.filter(row => row[1] < 24).length]];
     if (missing) groups.push(["#7890b0", "Без сопоставления Росстата", missing]);
     const legend = document.querySelector("#coverage-legend");
     legend.replaceChildren(...groups.map(([color, label, count]) => {
-      const span = document.createElement("span"), mark = document.createElement("i"); mark.style.background = color; span.append(mark, document.createTextNode(`${label} · ${number(count)}`)); return span;
+      const span = document.createElement("span"), mark = document.createElement("i"); mark.style.background = color; span.append(mark, document.createTextNode(`${label}, ${number(count)}`)); return span;
     }));
     coverage.forEach(([id, months], index) => {
       const included = byId.has(id);
       const point = node("circle", {cx: 35 + index % 73 * 10, cy: 25 + Math.floor(index / 73) * 10, r: 3.1, fill: included ? "#41dfc4" : months < 24 ? "#ffb454" : "#7890b0", opacity: coverageFilter === "all" || (coverageFilter === "included" ? included : !included) ? 1 : .09});
       const count = counts.get(months);
-      const label = `${months} из 24 месяцев · ${number(count)} территорий с такой полнотой · ${included ? "в модели" : months < 24 ? "исключён неполный ряд" : "не сопоставлен с Росстатом"}`;
+      const label = `${months} из 24 месяцев, ${number(count)} территорий с такой полнотой, ${included ? "в модели" : months < 24 ? "исключён неполный ряд" : "не сопоставлен с Росстатом"}`;
       point.append(node("title", {}, label)); point.addEventListener("pointerenter", () => { readout.textContent = label; }); chart.append(point);
     });
   }
@@ -156,7 +156,7 @@ function createExplorer(data, palette, openMunicipality) {
     document.querySelectorAll("#coverage-filter button").forEach(item => item.setAttribute("aria-pressed", item === button)); drawCoverage();
   });
 
-  let distributionMonth = 23;
+  let distributionMonth = 11;
   const spendingMaximum = Math.max(...items.map(item => Math.max(...item.history.spend)));
   function drawDistribution() {
     const values = items.map(item => item.history.spend[distributionMonth]);
@@ -170,7 +170,7 @@ function createExplorer(data, palette, openMunicipality) {
     chart.append(node("text", {x: 55, y: 26, class: "studio-axis-title"}, "Муниципалитеты"), node("text", {x: 765, y: 342, "text-anchor": "end", class: "studio-axis-title"}, "Расходы, ₽ в месяц"));
     const middle = median(values);
     const readout = document.querySelector("#distribution-readout");
-    readout.textContent = `Медиана: ${number(middle)} ₽ · центральные 80% территорий: ${number(percentile(values, .1))}–${number(percentile(values, .9))} ₽`;
+    readout.textContent = `Медиана: ${number(middle)} ₽, центральные 80% территорий: ${number(percentile(values, .1))}–${number(percentile(values, .9))} ₽`;
     const examples = document.querySelector("#distribution-peers"); examples.replaceChildren();
     bins.forEach(bin => {
       const group = node("g", {class: "distribution-bin", "data-low": bin.low});
@@ -178,7 +178,7 @@ function createExplorer(data, palette, openMunicipality) {
       const label = `${number(bin.low)}–${number(bin.high)} ₽: ${number(bin.count)} территорий; верхняя граница не включена`;
       group.append(node("title", {}, label));
       activate(group, label, () => {
-        readout.textContent = `${number(bin.low)}–${number(bin.high)} ₽ · ${number(bin.count)} территорий`;
+        readout.textContent = `${number(bin.low)}–${number(bin.high)} ₽, ${number(bin.count)} территорий`;
         chart.querySelectorAll(".distribution-bin").forEach(mark => mark.classList.toggle("is-selected", mark === group));
         peers(examples, items.filter(item => item.history.spend[distributionMonth] >= bin.low && item.history.spend[distributionMonth] < bin.high), distributionMonth);
       }); chart.append(group);
@@ -200,7 +200,7 @@ function createExplorer(data, palette, openMunicipality) {
       data.historyMedian[key].forEach((value, index) => {
         const delta = value - data.historyMedian[key][0];
         const rect = node("rect", {x: 166 + index * 25, y: 48 + row * 45, width: 22, height: 34, rx: 2, fill: color(delta), class: "calendar-cell"});
-        const label = `${name} · ${monthName(index)}: ${number(value, 2)}% · ${delta > 0 ? "+" : ""}${number(delta, 2)} п.п. к январю 2023`;
+        const label = `${name}, ${monthName(index)}: ${number(value, 2)}%, ${delta > 0 ? "+" : ""}${number(delta, 2)} п.п. к январю 2023`;
         const show = () => { readout.textContent = label; };
         activate(rect, label, () => { chart.querySelectorAll(".calendar-cell").forEach(cell => cell.classList.toggle("is-selected", cell === rect)); show(); });
         rect.append(node("title", {}, label)); rect.addEventListener("pointerenter", show); rect.addEventListener("focus", show); chart.append(rect);
@@ -217,21 +217,21 @@ function createExplorer(data, palette, openMunicipality) {
     const total = flows.reduce((sum, flow) => sum + flow.ids.length, 0);
     const chart = document.querySelector("#flows-chart"); chart.replaceChildren();
     const readout = document.querySelector("#flows-readout"), examples = document.querySelector("#flows-peers"); examples.replaceChildren();
-    readout.textContent = `${number(total)} территорий · ${different ? "разные типы на старте и финише" : "вся панель"}`;
+    readout.textContent = `${number(total)} территорий, ${different ? "разные типы на старте и финише" : "вся панель"}`;
     if (!total) return;
     const scale = (295 - (data.clusters.length - 1) * 14) / total;
     const leftCursor = {}, rightCursor = {};
     const legend = document.querySelector("#flows-legend");
     legend.replaceChildren(...data.clusters.map(type => {
       const label = document.createElement("span"), mark = document.createElement("i"); mark.style.background = palette[type.id];
-      label.append(mark, document.createTextNode(`0${type.id} · ${type.name}`)); return label;
+      label.append(mark, document.createTextNode(`0${type.id}, ${type.name}`)); return label;
     }));
     for (const [side, cursor, key] of [["left", leftCursor, "from"], ["right", rightCursor, "to"]]) {
       let top = 62;
       data.clusters.forEach(type => {
         const count = flows.filter(flow => flow[key] === type.id).reduce((sum, flow) => sum + flow.ids.length, 0);
         cursor[type.id] = top;
-        chart.append(node("rect", {x: side === "left" ? 140 : 650, y: top, width: 10, height: count * scale, fill: palette[type.id]}), node("text", {x: side === "left" ? 128 : 672, y: top + count * scale / 2 + 4, "text-anchor": side === "left" ? "end" : "start", class: "studio-type-label"}, `0${type.id} · ${number(count)}`));
+        chart.append(node("rect", {x: side === "left" ? 140 : 650, y: top, width: 10, height: count * scale, fill: palette[type.id]}), node("text", {x: side === "left" ? 128 : 672, y: top + count * scale / 2 + 4, "text-anchor": side === "left" ? "end" : "start", class: "studio-type-label"}, `0${type.id}, ${number(count)}`));
         top += count * scale + 14;
       });
     }
@@ -263,7 +263,7 @@ function createExplorer(data, palette, openMunicipality) {
     const point = node("circle", {r: 2.6, class: "studio-point", "data-id": item.id});
     activate(point, `${item.name}, ${item.region}`, () => { setMonth(snapshot); openMunicipality(item.id); });
     const tooltip = () => {
-      studioTooltip.textContent = view === "geo" ? `${item.name} · ${item.region}\n${data.clusters[item.trajectory[snapshot] - 1].name}` : `${item.name} · ${item.region}\n${monthName(snapshot)}: ${number(item.history[metric][snapshot], 2)}% · индекс расходов ${number(item.history.spendIndex[snapshot], 1)}\n${data.clusters[item.trajectory[snapshot] - 1].name}`;
+      studioTooltip.textContent = view === "geo" ? `${item.name}, ${item.region}\n${data.clusters[item.trajectory[snapshot] - 1].name}` : `${item.name}, ${item.region}\n${monthName(snapshot)}: ${number(item.history[metric][snapshot], 2)}%, индекс расходов ${number(item.history.spendIndex[snapshot], 1)}\n${data.clusters[item.trajectory[snapshot] - 1].name}`;
       const box = document.querySelector(".studio").getBoundingClientRect();
       const dot = point.getBoundingClientRect();
       studioTooltip.style.left = `${Math.max(0, Math.min(box.width - 260, dot.x - box.x + 12))}px`;
@@ -298,8 +298,8 @@ function createExplorer(data, palette, openMunicipality) {
         const horizontal = (view === "profile" ? indexMax : maximum) * tick / 4;
         axes.append(node("line", {x1: 60, x2: 765, y1: y(value), y2: y(value), class: "studio-grid"}), node("text", {x: 48, y: y(value) + 4, "text-anchor": "end", class: "studio-axis"}, `${number(value, 1)}%`), node("text", {x: x(horizontal), y: 368, "text-anchor": "middle", class: "studio-axis"}, number(horizontal, 1)));
       }
-      const indexLabel = data.meta.totalMunicipalities ? "Индекс расходов · 100 = медиана основной панели" : "Индекс расходов · 100 = медиана месяца";
-      axes.append(node("text", {x: 60, y: 24, class: "studio-axis-title"}, `${view === "profile" ? "Доля категории" : monthName(snapshot)} · %`), node("text", {x: 765, y: 399, "text-anchor": "end", class: "studio-axis-title"}, view === "profile" ? indexLabel : "Январь 2023 · доля категории, %"));
+      const indexLabel = data.meta.totalMunicipalities ? "Индекс расходов, 100 = медиана основной панели" : "Индекс расходов, 100 = медиана месяца";
+      axes.append(node("text", {x: 60, y: 24, class: "studio-axis-title"}, `${view === "profile" ? "Доля категории" : monthName(snapshot)}, %`), node("text", {x: 765, y: 399, "text-anchor": "end", class: "studio-axis-title"}, view === "profile" ? indexLabel : "Январь 2023, доля категории, %"));
       if (view === "change") {
         axes.append(node("line", {x1: x(0), x2: x(maximum), y1: y(0), y2: y(maximum), class: "studio-reference"}), node("text", {x: 80, y: 62, class: "studio-region-label"}, "Доля выросла"), node("text", {x: 745, y: 322, "text-anchor": "end", class: "studio-region-label"}, "Доля сократилась"));
       } else {
@@ -331,11 +331,11 @@ function createExplorer(data, palette, openMunicipality) {
         labels.append(node("circle", {cx, cy, r: 8, fill: palette[type.id], class: "studio-center"}), node("text", {x: cx + 13, y: cy + 4, class: "studio-type-label"}, `0${type.id}`));
       });
     }
-    const title = view === "geo" ? `Где находятся типы · ${monthName(snapshot)}` : view === "profile" ? `Уровень расходов и доля ${categories[metric]}` : `Доля ${categories[metric]} · январь 2023 → ${monthName(snapshot)}`;
+    const title = view === "geo" ? `Где находятся типы, ${monthName(snapshot)}` : view === "profile" ? `Уровень расходов и доля ${categories[metric]}` : `Доля ${categories[metric]}, январь 2023 → ${monthName(snapshot)}`;
     document.querySelector("#studio-title").textContent = title;
     document.querySelector("#studio-chart").setAttribute("aria-label", title);
     const insight = document.querySelector("#studio-insight");
-    if (insight) insight.textContent = view === "geo" ? "Цвет — тип в декабре 2024. Карта показывает положение центров, а не площадь территорий." : view === "profile" ? "Крупные точки — медианные показатели каждого типа в декабре 2024." : "На диагонали доля не изменилась. Цвет — тип территории в декабре 2024.";
+    if (insight) insight.textContent = view === "geo" ? "Цвет показывает тип в декабре 2024. Карта показывает положение центров, а не площадь территорий." : view === "profile" ? "Крупные точки показывают медианные показатели каждого типа в декабре 2024." : "На диагонали доля не изменилась. Цвет показывает тип территории в декабре 2024.";
   }
 
   function drawCohorts() {
@@ -368,7 +368,7 @@ function createExplorer(data, palette, openMunicipality) {
       const title = document.createElement("strong"); title.textContent = data.clusters[row.id - 1].name;
       const value = document.createElement("span"); value.className = "cohort-value"; value.textContent = `${number(row.values[0], 2)}% → ${number(row.values[snapshot], 2)}%`;
       const note = document.createElement("small"); const delta = row.values[snapshot] - row.values[0];
-      note.textContent = `${delta > 0 ? "+" : ""}${number(delta, 2)} п.п. · ${number(row.count)} территорий · янв 2023 → ${monthName(snapshot)}`;
+      note.textContent = `${delta > 0 ? "+" : ""}${number(delta, 2)} п.п., ${number(row.count)} территорий, янв 2023 → ${monthName(snapshot)}`;
       button.append(title, value, note); button.setAttribute("aria-label", `Показать территории типа «${title.textContent}» в декабре 2024`);
       button.addEventListener("click", () => { changedOnly.checked = false; setMonth(snapshot); filterType(row.id); document.querySelector("#atlas").scrollIntoView({behavior: "smooth"}); });
       return button;
@@ -425,9 +425,9 @@ function createExplorer(data, palette, openMunicipality) {
       point.setAttribute("tabindex", visible(item) ? "0" : "-1");
       if (visible(item)) count++;
     });
-    document.querySelector("#map-status").textContent = `${monthName(month)} · показано ${number(count)} из ${number(items.length)} · сменили тип за месяц: ${month ? stats[month].changed.length : "нет предыдущего месяца"}`;
-    document.querySelector(".map-caption").textContent = `Центры муниципалитетов · ${monthName(month)}`;
-    document.querySelector("#map-scale").textContent = layer.value === "spend" ? `Синий → оранжевый: ${number(low)} → ${number(high)} ₽. Границы — 5-й и 95-й процентили месяца.` : layer.value === "changes" ? "Серый: без смен · жёлтый → красный: больше смен с января 2023" : "Цвет — тип · обводка — смена типа за месяц";
+    document.querySelector("#map-status").textContent = `${monthName(month)}, показано ${number(count)} из ${number(items.length)}, сменили тип за месяц: ${month ? stats[month].changed.length : "нет предыдущего месяца"}`;
+    document.querySelector(".map-caption").textContent = `Центры муниципалитетов, ${monthName(month)}`;
+    document.querySelector("#map-scale").textContent = layer.value === "spend" ? `Синий → оранжевый: ${number(low)} → ${number(high)} ₽. Границы шкалы: 5-й и 95-й процентили месяца.` : layer.value === "changes" ? "Серый: без смен, жёлтый → красный: больше смен с января 2023" : "Цвет показывает тип, обводка отмечает смену типа за месяц";
     document.querySelectorAll(".filter").forEach(button => {
       button.classList.toggle("is-active", Number(button.dataset.cluster) === typeFilter);
       button.setAttribute("aria-pressed", Number(button.dataset.cluster) === typeFilter);
@@ -447,7 +447,7 @@ function createExplorer(data, palette, openMunicipality) {
         group.append(node("rect", {x: 40 + index * 18, y: bottom, width: 13, height, fill: palette[type.id]}));
       });
       group.append(node("rect", {x: 38 + index * 18, y: 21, width: 17, height: 146, class: "month-outline"}));
-      const label = `${monthName(index)}: ${data.clusters.map(type => `${type.name} — ${row.counts[type.id]}`).join(", ")}`;
+      const label = `${monthName(index)}: ${data.clusters.map(type => `${type.name}: ${row.counts[type.id]}`).join(", ")}`;
       group.append(node("title", {}, label));
       activate(group, label, () => openAtlas(index));
       chart.append(group);
@@ -520,11 +520,11 @@ function createExplorer(data, palette, openMunicipality) {
     const filtered = items.filter(visible);
     const list = document.querySelector("#transition-list");
     const restricted = pair || changedOnly.checked || typeFilter;
-    document.querySelector("#transition-title").textContent = restricted ? `В выделении: ${number(filtered.length)} территорий` : `Смены типа · ${monthName(month)}: ${stats[month].changed.length} территорий`;
+    document.querySelector("#transition-title").textContent = restricted ? `В выделении: ${number(filtered.length)} территорий` : `Смены типа, ${monthName(month)}: ${stats[month].changed.length} территорий`;
     const shown = restricted ? filtered : items.filter(item => stats[month].changed.includes(item.id));
     list.replaceChildren(...shown.map(item => {
       const button = document.createElement("button");
-      button.type = "button"; button.textContent = `${item.name} · ${item.region}`;
+      button.type = "button"; button.textContent = `${item.name}, ${item.region}`;
       button.addEventListener("click", () => { stop(); openMunicipality(item.id); });
       return button;
     }));
@@ -540,7 +540,7 @@ function createExplorer(data, palette, openMunicipality) {
     const x = i => 66 + i * 36;
     const y = value => 208 - value / max * 182;
     const chart = document.querySelector("#history-chart");
-    chart.setAttribute("aria-label", `${selected.name}: ${document.querySelector("#history-metric").selectedOptions[0].textContent}, январь 2023 — декабрь 2024; сравнение с медианой выборки`);
+    chart.setAttribute("aria-label", `${selected.name}: ${document.querySelector("#history-metric").selectedOptions[0].textContent}, с января 2023 по декабрь 2024; сравнение с медианой выборки`);
     chart.replaceChildren();
     for (const value of [0, max / 2, max]) {
       chart.append(node("line", {x1: 66, x2: 894, y1: y(value), y2: y(value), class: "chart-grid"}), node("text", {x: 56, y: y(value) + 4, "text-anchor": "end", class: "chart-label"}, number(value, metric.endsWith("share") ? 1 : 0)));
@@ -555,7 +555,7 @@ function createExplorer(data, palette, openMunicipality) {
       activate(point, label, () => setMonth(index)); chart.append(point);
     });
     const unit = metric === "spend" ? " ₽" : metric.endsWith("share") ? "%" : "";
-    document.querySelector("#history-readout").textContent = `${monthName(month)} · ${selected.name}: ${number(values[month], 2)}${unit} · медиана выборки: ${number(median[month], 2)}${unit}`;
+    document.querySelector("#history-readout").textContent = `${monthName(month)}, ${selected.name}: ${number(values[month], 2)}${unit}, медиана выборки: ${number(median[month], 2)}${unit}`;
   }
 
   function updatePassport() {
@@ -583,11 +583,11 @@ function createExplorer(data, palette, openMunicipality) {
   function refresh() {
     const monthInput = document.querySelector("#atlas-month"); if (monthInput) monthInput.value = month;
     const monthLabel = document.querySelector("#month-label"); if (monthLabel) monthLabel.textContent = monthName(month);
-    const overviewMonth = document.querySelector("#overview-month"); if (overviewMonth) overviewMonth.textContent = `${monthName(month)} · ${data.clusters.map(type => `${type.name}: ${stats[month].counts[type.id]}`).join(" · ")}`;
+    const overviewMonth = document.querySelector("#overview-month"); if (overviewMonth) overviewMonth.textContent = `${monthName(month)}, ${data.clusters.map(type => `${type.name}: ${stats[month].counts[type.id]}`).join(", ")}`;
     for (const selector of ["#overview-chart [data-month]", "#change-chart [data-month]"]) document.querySelectorAll(selector).forEach(mark => { mark.classList.toggle("is-current", Number(mark.dataset.month) === month); mark.setAttribute("aria-pressed", Number(mark.dataset.month) === month); });
     document.querySelectorAll("#overview-legend button").forEach(button => button.setAttribute("aria-pressed", Number(button.dataset.cluster) === typeFilter));
     const changeReadout = document.querySelector("#change-readout");
-    if (changeReadout) changeReadout.textContent = month ? `${monthName(month)}: ${stats[month].changed.length} смен — ${number(stats[month].changed.length / items.length * 100, 1)}% выборки. Нажмите на столбец, чтобы посмотреть эти территории.` : "Для января 2023 нет предыдущего месяца; первая смена наблюдается в феврале.";
+    if (changeReadout) changeReadout.textContent = month ? `${monthName(month)}: ${stats[month].changed.length} смен, ${number(stats[month].changed.length / items.length * 100, 1)}% выборки. Нажмите на столбец, чтобы посмотреть эти территории.` : "Для января 2023 нет предыдущего месяца; первая смена наблюдается в феврале.";
     paintMap(); renderMatrix(); renderList(); updatePassport(); drawStudio(); drawCohorts();
   }
   function stop() { clearInterval(timer); timer = undefined; const button = document.querySelector("#month-play"); if (button) { button.textContent = "▶"; button.setAttribute("aria-label", "Проиграть 24 месяца"); } }

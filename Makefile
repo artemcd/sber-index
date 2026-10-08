@@ -1,6 +1,6 @@
 PYTHON = uv run --locked python
 
-.PHONY: all audit baseline graph validate dynamic compare interpret crosswalk population external density site context check serve
+.PHONY: all audit baseline graph validate dynamic compare interpret crosswalk population external density site context research sensitivity decisions check serve
 
 all: site
 
@@ -41,7 +41,29 @@ site: density
 	$(PYTHON) scripts/build_site_data.py
 	$(PYTHON) scripts/build_external_site_data.py
 	$(PYTHON) scripts/build_rosstat_context.py
+	$(PYTHON) scripts/run_research.py
+	$(PYTHON) scripts/check_research.py
+	$(PYTHON) scripts/run_sensitivity.py
+	$(PYTHON) scripts/check_sensitivity.py
+	$(PYTHON) scripts/run_decision_checks.py
+	$(PYTHON) scripts/check_decisions.py
 	python3 scripts/check_site.py
+
+research:
+	$(PYTHON) scripts/run_research.py
+	$(PYTHON) scripts/check_research.py
+	$(PYTHON) scripts/run_sensitivity.py
+	$(PYTHON) scripts/check_sensitivity.py
+	$(PYTHON) scripts/run_decision_checks.py
+	$(PYTHON) scripts/check_decisions.py
+
+decisions:
+	$(PYTHON) scripts/run_decision_checks.py
+	$(PYTHON) scripts/check_decisions.py
+
+sensitivity:
+	$(PYTHON) scripts/run_sensitivity.py
+	$(PYTHON) scripts/check_sensitivity.py
 
 context:
 	$(PYTHON) scripts/build_rosstat_context.py

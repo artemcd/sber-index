@@ -1,0 +1,673 @@
+{
+  "protocol": {
+    "neighbors": [
+      4,
+      8,
+      16,
+      32
+    ],
+    "bandwidths": [
+      0.5,
+      1.0,
+      2.0
+    ],
+    "distances": [
+      "euclidean",
+      "cosine"
+    ],
+    "drop_together": [
+      "marketplace_share",
+      "log_market_access"
+    ]
+  },
+  "scope": "base_monthly",
+  "clusters": [
+    {
+      "id": 1,
+      "name": "Цифровая повседневность",
+      "count": 1191,
+      "regions": 58,
+      "spendIndex": 86.2,
+      "marketAccess": 325.9
+    },
+    {
+      "id": 2,
+      "name": "Автономные локальные центры",
+      "count": 414,
+      "regions": 39,
+      "spendIndex": 121.7,
+      "marketAccess": 197.5
+    },
+    {
+      "id": 3,
+      "name": "Крупные центры",
+      "count": 411,
+      "regions": 48,
+      "spendIndex": 173.5,
+      "marketAccess": 421.7
+    }
+  ],
+  "ablations": [
+    {
+      "name": "Уровень расходов",
+      "dropped": [
+        "relative_spend"
+      ],
+      "ari": 0.6128351025517892,
+      "profiles": [
+        {
+          "cluster": 1,
+          "jaccard": 0.7661107031714396,
+          "reference_count_december": 1191,
+          "count_december": 985
+        },
+        {
+          "cluster": 2,
+          "jaccard": 0.6001857585139319,
+          "reference_count_december": 414,
+          "count_december": 607
+        },
+        {
+          "cluster": 3,
+          "jaccard": 0.9333333333333333,
+          "reference_count_december": 411,
+          "count_december": 424
+        }
+      ]
+    },
+    {
+      "name": "Здоровье",
+      "dropped": [
+        "health_share"
+      ],
+      "ari": 0.8730037865241332,
+      "profiles": [
+        {
+          "cluster": 1,
+          "jaccard": 0.9415321883962818,
+          "reference_count_december": 1191,
+          "count_december": 1158
+        },
+        {
+          "cluster": 2,
+          "jaccard": 0.8193689745836985,
+          "reference_count_december": 414,
+          "count_december": 462
+        },
+        {
+          "cluster": 3,
+          "jaccard": 0.9324429713394424,
+          "reference_count_december": 411,
+          "count_december": 396
+        }
+      ]
+    },
+    {
+      "name": "Маркетплейсы",
+      "dropped": [
+        "marketplace_share"
+      ],
+      "ari": 0.8436786037918579,
+      "profiles": [
+        {
+          "cluster": 1,
+          "jaccard": 0.9182010365521004,
+          "reference_count_december": 1191,
+          "count_december": 1192
+        },
+        {
+          "cluster": 2,
+          "jaccard": 0.7885977337110481,
+          "reference_count_december": 414,
+          "count_december": 403
+        },
+        {
+          "cluster": 3,
+          "jaccard": 0.9692591155934833,
+          "reference_count_december": 411,
+          "count_december": 421
+        }
+      ]
+    },
+    {
+      "name": "Общепит",
+      "dropped": [
+        "food_service_share"
+      ],
+      "ari": 0.8922731509322301,
+      "profiles": [
+        {
+          "cluster": 1,
+          "jaccard": 0.9459093065817122,
+          "reference_count_december": 1191,
+          "count_december": 1220
+        },
+        {
+          "cluster": 2,
+          "jaccard": 0.8590869607180774,
+          "reference_count_december": 414,
+          "count_december": 371
+        },
+        {
+          "cluster": 3,
+          "jaccard": 0.9590443686006825,
+          "reference_count_december": 411,
+          "count_december": 425
+        }
+      ]
+    },
+    {
+      "name": "Продукты",
+      "dropped": [
+        "grocery_share"
+      ],
+      "ari": 0.9126791643552329,
+      "profiles": [
+        {
+          "cluster": 1,
+          "jaccard": 0.9575476558475012,
+          "reference_count_december": 1191,
+          "count_december": 1205
+        },
+        {
+          "cluster": 2,
+          "jaccard": 0.8905477367820464,
+          "reference_count_december": 414,
+          "count_december": 400
+        },
+        {
+          "cluster": 3,
+          "jaccard": 0.9535500343710105,
+          "reference_count_december": 411,
+          "count_december": 411
+        }
+      ]
+    },
+    {
+      "name": "Транспорт",
+      "dropped": [
+        "transport_share"
+      ],
+      "ari": 0.9054104153786054,
+      "profiles": [
+        {
+          "cluster": 1,
+          "jaccard": 0.9547514395720468,
+          "reference_count_december": 1191,
+          "count_december": 1219
+        },
+        {
+          "cluster": 2,
+          "jaccard": 0.8815916553988796,
+          "reference_count_december": 414,
+          "count_december": 395
+        },
+        {
+          "cluster": 3,
+          "jaccard": 0.943782939683779,
+          "reference_count_december": 411,
+          "count_december": 402
+        }
+      ]
+    },
+    {
+      "name": "Доступность рынков",
+      "dropped": [
+        "log_market_access"
+      ],
+      "ari": 0.6551013060772622,
+      "profiles": [
+        {
+          "cluster": 1,
+          "jaccard": 0.8278228756575967,
+          "reference_count_december": 1191,
+          "count_december": 1037
+        },
+        {
+          "cluster": 2,
+          "jaccard": 0.5898272552783109,
+          "reference_count_december": 414,
+          "count_december": 610
+        },
+        {
+          "cluster": 3,
+          "jaccard": 0.8551540001907123,
+          "reference_count_december": 411,
+          "count_december": 369
+        }
+      ]
+    },
+    {
+      "name": "Маркетплейсы + Доступность рынков",
+      "dropped": [
+        "marketplace_share",
+        "log_market_access"
+      ],
+      "ari": 0.5853511277517415,
+      "profiles": [
+        {
+          "cluster": 1,
+          "jaccard": 0.7778118191721133,
+          "reference_count_december": 1191,
+          "count_december": 1002
+        },
+        {
+          "cluster": 2,
+          "jaccard": 0.5197882686034345,
+          "reference_count_december": 414,
+          "count_december": 626
+        },
+        {
+          "cluster": 3,
+          "jaccard": 0.8621951219512195,
+          "reference_count_december": 411,
+          "count_december": 388
+        }
+      ]
+    }
+  ],
+  "networks": [
+    {
+      "distance": "euclidean",
+      "neighbors": 4,
+      "bandwidth": 0.5,
+      "silhouette": 0.30662433004848505,
+      "ch": 985.3292861181445,
+      "s_dbw": 1.1020190404198045,
+      "avi": 0.8597959609740524,
+      "avu": 0.6666666666666666,
+      "anui": 0.5465082761761948,
+      "mq": 2.5793878829221573,
+      "modularity": 0.4782372902237766,
+      "reference_ari": 0.896924080873299,
+      "temporal_ari": 0.907511432412209,
+      "mean_degree": 5.623015873015873
+    },
+    {
+      "distance": "euclidean",
+      "neighbors": 4,
+      "bandwidth": 1.0,
+      "silhouette": 0.3071508327062769,
+      "ch": 985.5043599891287,
+      "s_dbw": 1.1018902368114782,
+      "avi": 0.8599601867697791,
+      "avu": 0.6666666666666666,
+      "anui": 0.5465731623082393,
+      "mq": 2.5798805603093373,
+      "modularity": 0.4780930520477758,
+      "reference_ari": 0.8986476515974511,
+      "temporal_ari": 0.9057214687846395,
+      "mean_degree": 5.623015873015873
+    },
+    {
+      "distance": "euclidean",
+      "neighbors": 4,
+      "bandwidth": 2.0,
+      "silhouette": 0.30637307279257775,
+      "ch": 985.4709463534542,
+      "s_dbw": 1.1033529728507523,
+      "avi": 0.8599455477882669,
+      "avu": 0.6666666666666666,
+      "anui": 0.5465681333321714,
+      "mq": 2.5798366433648003,
+      "modularity": 0.4781464187603653,
+      "reference_ari": 0.895203873578495,
+      "temporal_ari": 0.9062270219736515,
+      "mean_degree": 5.623015873015873
+    },
+    {
+      "distance": "euclidean",
+      "neighbors": 8,
+      "bandwidth": 0.5,
+      "silhouette": 0.3064529011319561,
+      "ch": 985.5605473246933,
+      "s_dbw": 1.0993376967451198,
+      "avi": 0.8602869059951531,
+      "avu": 0.6666666666666666,
+      "anui": 0.5467055902749076,
+      "mq": 2.5808607179854595,
+      "modularity": 0.47842493341347875,
+      "reference_ari": 0.8967249129349155,
+      "temporal_ari": 0.9074999838189314,
+      "mean_degree": 11.047660383597881
+    },
+    {
+      "distance": "euclidean",
+      "neighbors": 8,
+      "bandwidth": 1.0,
+      "silhouette": 0.30588992665968445,
+      "ch": 985.5858203063708,
+      "s_dbw": 1.095414752595855,
+      "avi": 0.8597668119712619,
+      "avu": 0.6666666666666666,
+      "anui": 0.54649591834557,
+      "mq": 2.5793004359137854,
+      "modularity": 0.478221867326581,
+      "reference_ari": 0.8935912972309071,
+      "temporal_ari": 0.9050995061449743,
+      "mean_degree": 11.047660383597881
+    },
+    {
+      "distance": "euclidean",
+      "neighbors": 8,
+      "bandwidth": 2.0,
+      "silhouette": 0.3060046184187489,
+      "ch": 985.5099154142396,
+      "s_dbw": 1.096738899812263,
+      "avi": 0.8599008949479376,
+      "avu": 0.6666666666666666,
+      "anui": 0.5465494389011938,
+      "mq": 2.5797026848438134,
+      "modularity": 0.47824863763440933,
+      "reference_ari": 0.8935294019163528,
+      "temporal_ari": 0.9045659872594267,
+      "mean_degree": 11.047660383597881
+    },
+    {
+      "distance": "euclidean",
+      "neighbors": 16,
+      "bandwidth": 0.5,
+      "silhouette": 0.3061131815606319,
+      "ch": 985.5864409992638,
+      "s_dbw": 1.0932641026420324,
+      "avi": 0.8591611028941202,
+      "avu": 0.6666666666666666,
+      "anui": 0.5462476960726383,
+      "mq": 2.5774833086823605,
+      "modularity": 0.47800908211605037,
+      "reference_ari": 0.8955944645225106,
+      "temporal_ari": 0.9087874829906085,
+      "mean_degree": 21.90000826719577
+    },
+    {
+      "distance": "euclidean",
+      "neighbors": 16,
+      "bandwidth": 1.0,
+      "silhouette": 0.3042372552946808,
+      "ch": 985.4734809305108,
+      "s_dbw": 1.0848190851578863,
+      "avi": 0.8585544729021057,
+      "avu": 0.6666666666666666,
+      "anui": 0.5459991136311261,
+      "mq": 2.5756634187063177,
+      "modularity": 0.4781169442356563,
+      "reference_ari": 0.886205314292314,
+      "temporal_ari": 0.9066802263946726,
+      "mean_degree": 21.90000826719577
+    },
+    {
+      "distance": "euclidean",
+      "neighbors": 16,
+      "bandwidth": 2.0,
+      "silhouette": 0.30400608050170674,
+      "ch": 985.3467858846319,
+      "s_dbw": 1.0878218784654872,
+      "avi": 0.8585014642661712,
+      "avu": 0.6666666666666666,
+      "anui": 0.5459773770356936,
+      "mq": 2.5755043927985137,
+      "modularity": 0.4781305857210751,
+      "reference_ari": 0.8841595422078076,
+      "temporal_ari": 0.9054069040410179,
+      "mean_degree": 21.90000826719577
+    },
+    {
+      "distance": "euclidean",
+      "neighbors": 32,
+      "bandwidth": 0.5,
+      "silhouette": 0.3054513025705011,
+      "ch": 985.4766577342971,
+      "s_dbw": 1.0970431389774633,
+      "avi": 0.8583980665891864,
+      "avu": 0.6666666666666666,
+      "anui": 0.5459375016668647,
+      "mq": 2.575194199767559,
+      "modularity": 0.47803603926159327,
+      "reference_ari": 0.8914184191384437,
+      "temporal_ari": 0.9092312668418201,
+      "mean_degree": 43.65376984126984
+    },
+    {
+      "distance": "euclidean",
+      "neighbors": 32,
+      "bandwidth": 1.0,
+      "silhouette": 0.30347697271609647,
+      "ch": 985.3157643944645,
+      "s_dbw": 1.0874667041051558,
+      "avi": 0.8581262696744948,
+      "avu": 0.6666666666666666,
+      "anui": 0.5458261508171381,
+      "mq": 2.5743788090234845,
+      "modularity": 0.47802133408171715,
+      "reference_ari": 0.8833958432885739,
+      "temporal_ari": 0.9058075374664318,
+      "mean_degree": 43.65376984126984
+    },
+    {
+      "distance": "euclidean",
+      "neighbors": 32,
+      "bandwidth": 2.0,
+      "silhouette": 0.3028295139231964,
+      "ch": 985.1936141074153,
+      "s_dbw": 1.089982155270427,
+      "avi": 0.8575031779502812,
+      "avu": 0.6666666666666666,
+      "anui": 0.5455740180312404,
+      "mq": 2.5725095338508432,
+      "modularity": 0.4778586765470285,
+      "reference_ari": 0.8800458816291039,
+      "temporal_ari": 0.9037406249479131,
+      "mean_degree": 43.65376984126984
+    },
+    {
+      "distance": "cosine",
+      "neighbors": 4,
+      "bandwidth": 0.5,
+      "silhouette": 0.30559661211629924,
+      "ch": 983.263437991709,
+      "s_dbw": 1.1377776122208507,
+      "avi": 0.8584269894594957,
+      "avu": 0.6666666666666666,
+      "anui": 0.5459498972054617,
+      "mq": 2.575280968378487,
+      "modularity": 0.4757204913710839,
+      "reference_ari": 0.8789216542049845,
+      "temporal_ari": 0.8993304378949416,
+      "mean_degree": 5.503844246031747
+    },
+    {
+      "distance": "cosine",
+      "neighbors": 4,
+      "bandwidth": 1.0,
+      "silhouette": 0.30586537242508266,
+      "ch": 983.2972296566777,
+      "s_dbw": 1.1353381232463844,
+      "avi": 0.8585637484629526,
+      "avu": 0.6666666666666666,
+      "anui": 0.5460050282815877,
+      "mq": 2.5756912453888576,
+      "modularity": 0.47580696841202874,
+      "reference_ari": 0.8796523420467803,
+      "temporal_ari": 0.8993883768476004,
+      "mean_degree": 5.503844246031747
+    },
+    {
+      "distance": "cosine",
+      "neighbors": 4,
+      "bandwidth": 2.0,
+      "silhouette": 0.30586537242508266,
+      "ch": 983.2972296566777,
+      "s_dbw": 1.1353381232463844,
+      "avi": 0.8585637484629526,
+      "avu": 0.6666666666666666,
+      "anui": 0.5460050282815877,
+      "mq": 2.5756912453888576,
+      "modularity": 0.47580696841202874,
+      "reference_ari": 0.8796523420467803,
+      "temporal_ari": 0.8993883768476004,
+      "mean_degree": 5.503844246031747
+    },
+    {
+      "distance": "cosine",
+      "neighbors": 8,
+      "bandwidth": 0.5,
+      "silhouette": 0.30638596688155023,
+      "ch": 983.1364950661151,
+      "s_dbw": 1.1489540818541941,
+      "avi": 0.8593081396931832,
+      "avu": 0.6666666666666666,
+      "anui": 0.5463085304570097,
+      "mq": 2.5779244190795496,
+      "modularity": 0.4755417309694015,
+      "reference_ari": 0.8817574181455701,
+      "temporal_ari": 0.9005061138747104,
+      "mean_degree": 10.758184523809524
+    },
+    {
+      "distance": "cosine",
+      "neighbors": 8,
+      "bandwidth": 1.0,
+      "silhouette": 0.30636775666776717,
+      "ch": 983.0773227218448,
+      "s_dbw": 1.14844436627281,
+      "avi": 0.8593216838746996,
+      "avu": 0.6666666666666666,
+      "anui": 0.54631394006794,
+      "mq": 2.577965051624099,
+      "modularity": 0.47554365113482966,
+      "reference_ari": 0.8815946679288987,
+      "temporal_ari": 0.9002708677810533,
+      "mean_degree": 10.758184523809524
+    },
+    {
+      "distance": "cosine",
+      "neighbors": 8,
+      "bandwidth": 2.0,
+      "silhouette": 0.30634682674304875,
+      "ch": 983.0584695951003,
+      "s_dbw": 1.148110761409069,
+      "avi": 0.8592988651346646,
+      "avu": 0.6666666666666666,
+      "anui": 0.5463047245059239,
+      "mq": 2.5778965954039936,
+      "modularity": 0.47555276694314047,
+      "reference_ari": 0.8814725127880205,
+      "temporal_ari": 0.9003444421245775,
+      "mean_degree": 10.758184523809524
+    },
+    {
+      "distance": "cosine",
+      "neighbors": 16,
+      "bandwidth": 0.5,
+      "silhouette": 0.3052946530905159,
+      "ch": 981.841590915356,
+      "s_dbw": 1.1582792737336012,
+      "avi": 0.8586607373669776,
+      "avu": 0.6666666666666666,
+      "anui": 0.5460438342981088,
+      "mq": 2.5759822121009326,
+      "modularity": 0.47463467188739433,
+      "reference_ari": 0.8740139065201064,
+      "temporal_ari": 0.9010655865883198,
+      "mean_degree": 21.22375165343915
+    },
+    {
+      "distance": "cosine",
+      "neighbors": 16,
+      "bandwidth": 1.0,
+      "silhouette": 0.3052696034240215,
+      "ch": 981.8415618934541,
+      "s_dbw": 1.1582622320963,
+      "avi": 0.8586923028662112,
+      "avu": 0.6666666666666666,
+      "anui": 0.5460566144945318,
+      "mq": 2.5760769085986337,
+      "modularity": 0.47464921877476324,
+      "reference_ari": 0.8738295883460322,
+      "temporal_ari": 0.9010604103765583,
+      "mean_degree": 21.22375165343915
+    },
+    {
+      "distance": "cosine",
+      "neighbors": 16,
+      "bandwidth": 2.0,
+      "silhouette": 0.3052696034240215,
+      "ch": 981.8415618934541,
+      "s_dbw": 1.1582622320963,
+      "avi": 0.8586923028662112,
+      "avu": 0.6666666666666666,
+      "anui": 0.5460566144945318,
+      "mq": 2.5760769085986337,
+      "modularity": 0.47464921877476324,
+      "reference_ari": 0.8738295883460322,
+      "temporal_ari": 0.9010604103765583,
+      "mean_degree": 21.22375165343915
+    },
+    {
+      "distance": "cosine",
+      "neighbors": 32,
+      "bandwidth": 0.5,
+      "silhouette": 0.3056199145154908,
+      "ch": 980.4670325236416,
+      "s_dbw": 1.1661021875653506,
+      "avi": 0.8572594840750178,
+      "avu": 0.6666666666666666,
+      "anui": 0.5454743180997413,
+      "mq": 2.571778452225054,
+      "modularity": 0.47280643489904645,
+      "reference_ari": 0.8704038784572742,
+      "temporal_ari": 0.89946613156163,
+      "mean_degree": 42.091807208994716
+    },
+    {
+      "distance": "cosine",
+      "neighbors": 32,
+      "bandwidth": 1.0,
+      "silhouette": 0.3054974404484693,
+      "ch": 980.4882933239264,
+      "s_dbw": 1.1641060629711288,
+      "avi": 0.8572814862382866,
+      "avu": 0.6666666666666666,
+      "anui": 0.5454829872747958,
+      "mq": 2.5718444587148603,
+      "modularity": 0.4728772316304995,
+      "reference_ari": 0.869964756971361,
+      "temporal_ari": 0.8993530306758516,
+      "mean_degree": 42.091807208994716
+    },
+    {
+      "distance": "cosine",
+      "neighbors": 32,
+      "bandwidth": 2.0,
+      "silhouette": 0.3054858001161516,
+      "ch": 980.4901327871227,
+      "s_dbw": 1.1640946713498297,
+      "avi": 0.857260216497235,
+      "avu": 0.6666666666666666,
+      "anui": 0.5454743650596039,
+      "mq": 2.5717806494917057,
+      "modularity": 0.4728686507723001,
+      "reference_ari": 0.8699022358217707,
+      "temporal_ari": 0.8993517704009217,
+      "mean_degree": 42.091807208994716
+    }
+  ],
+  "baseline": {
+    "model": "transport_dynamic",
+    "silhouette": 0.31681236160835613,
+    "ch": 983.1716117263571,
+    "s_dbw": 1.1288388908858236,
+    "avi": 0.8846231227145256,
+    "avu": 0.6666666666666666,
+    "anui": 0.5564359069100656,
+    "mq": 2.6538693681435768,
+    "modularity": 0.4861185810578401,
+    "temporal_ari": 0.92646799991397
+  },
+  "inputs": {
+    "config/sensitivity.json": "3f14ab6e23c89aeacc8c011236afa3502e360cf2f8347b6dd2cd4d0eba2eb7d9",
+    "config/dynamic_model.json": "8c36e103448a56d38318093d00086b98cb4b6f9d57207fe27c6a0c9bd16cc72e",
+    "site/research-data.json": "85e270545f01b21051ecbc0698e09173fbbeb3a3bdf3e493042407844c35badf",
+    "artifacts/dynamic/monthly_clusters.csv": "5d1a7b1d78e6ba92c5761bcb0faf7affb18e4445568bfe2277e19220dc173e94"
+  }
+}

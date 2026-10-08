@@ -1,0 +1,20 @@
+{
+  "cluster_counts": [2, 3, 4, 5, 6, 7, 8],
+  "subsamples": 10,
+  "sample_fraction": 0.8,
+  "seed": 20241008,
+  "synthetic_nodes": 600,
+  "synthetic_runs": 5,
+  "change_month": 9,
+  "change_fraction": 0.15,
+  "expected_degree": 16,
+  "within_edge_share": 0.7,
+  "event_tolerance": 2,
+  "scenarios": [
+    {"id": "clear", "name": "Меньше шума", "noise": 0.5, "effects": 0.5, "changes": true, "spike": false},
+    {"id": "calibrated", "name": "Масштаб реальных остатков", "noise": 1.0, "effects": 1.0, "changes": true, "spike": false},
+    {"id": "noisy", "name": "Вдвое больше шума", "noise": 2.0, "effects": 1.0, "changes": true, "spike": false},
+    {"id": "spike", "name": "Разовый скачок", "noise": 1.0, "effects": 1.0, "changes": true, "spike": true},
+    {"id": "no_changes", "name": "Настоящих смен нет", "noise": 1.0, "effects": 1.0, "changes": false, "spike": false}
+  ]
+}
