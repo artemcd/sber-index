@@ -1,9 +1,9 @@
-const colors = {1: "#45c5a1", 2: "#efad55", 3: "#8f83ea"};
+const colors = {1: "#41dfc4", 2: "#ffb454", 3: "#a693ff", 4: "#ff7598"};
 const modelColors = {
-  "KMeans, признаки": "#45c5a1",
-  "GMM, признаки": "#efad55",
-  "KMeans, статическая сеть": "#8f83ea",
-  "KMeans, динамическая сеть": "#f07872"
+  "KMeans, признаки": "#41dfc4",
+  "GMM, признаки": "#ffb454",
+  "KMeans, статическая сеть": "#a693ff",
+  "KMeans, динамическая сеть": "#ff7598"
 };
 const descriptions = {
   1: "Ниже медианы по общим расходам, заметно выше роль маркетплейсов и повседневных покупок.",
@@ -15,7 +15,7 @@ let dataset;
 let municipalities;
 let municipalityById;
 let circlesById = new Map();
-let activeCluster = 0;
+let explorer;
 let selectedId;
 let searchLabels;
 
@@ -39,9 +39,8 @@ function formatNumber(value, digits = 0) {
 }
 
 function renderSummary() {
-  document.querySelector("#stat-municipalities").textContent = formatNumber(dataset.meta.municipalities);
-  document.querySelector("#stat-core").textContent = `${Math.round(dataset.meta.coreShare * 100)}%`;
-  document.querySelector("#stat-transitions").textContent = dataset.meta.persistentTransitions;
+  const agreement = document.querySelector("#matched-ari");
+  if (agreement) agreement.textContent = formatNumber(dataset.matchedAgreement.mean, 3);
 }
 
 function renderClusters() {
@@ -50,11 +49,10 @@ function renderClusters() {
     <article class="type-card" style="--cluster-color: ${colors[cluster.id]}">
       <div class="type-card-head"><span class="type-index">ТИП 0${cluster.id}</span><span class="type-swatch"></span></div>
       <h3>${cluster.name}</h3>
-      <p>${descriptions[cluster.id]}</p>
+      <p>${cluster.description || descriptions[cluster.id]}</p>
       <dl>
         <div><dt>${formatNumber(cluster.count)}</dt><dd>МО</dd></div>
-        <div><dt>${formatNumber(cluster.spendIndex, 1)}</dt><dd>индекс расходов</dd></div>
-        <div><dt>${cluster.regions}</dt><dd>регионов</dd></div>
+        ${dataset.meta.totalMunicipalities ? `<div><dt>${formatNumber(cluster.population)}</dt><dd>медиана жителей</dd></div><div><dt>${formatNumber(cluster.urbanShare * 100)}%</dt><dd>городских</dd></div>` : `<div><dt>${formatNumber(cluster.spendIndex, 1)}</dt><dd>индекс расходов</dd></div><div><dt>${cluster.regions}</dt><dd>регионов</dd></div>`}
       </dl>
     </article>
   `).join("");
@@ -75,7 +73,7 @@ function renderGrid() {
 }
 
 function showTooltip(event, municipality) {
-  tooltip.innerHTML = `<strong>${municipality.name}</strong><span>${municipality.region}<br>${municipality.clusterName}</span>`;
+  tooltip.innerHTML = `<strong>${municipality.name}</strong><span>${municipality.region}<br>${dataset.clusters[municipality.trajectory[explorer?.month() ?? 23] - 1].name}</span>`;
   tooltip.hidden = false;
   tooltip.style.left = `${event.clientX + 14}px`;
   tooltip.style.top = `${event.clientY + 14}px`;
@@ -94,6 +92,7 @@ function renderMap() {
       fill: colors[municipality.cluster],
       opacity: .72,
       class: "municipality",
+      "data-id": municipality.id,
       tabindex: 0,
       role: "button",
       "aria-label": `${municipality.name}, ${municipality.region}: ${municipality.clusterName}`
@@ -111,33 +110,9 @@ function renderMap() {
   svg.append(points);
 }
 
-function applyFilter(cluster) {
-  activeCluster = cluster;
-  document.querySelectorAll(".filter").forEach(button => {
-    button.classList.toggle("is-active", Number(button.dataset.cluster) === cluster);
-  });
-  municipalities.forEach(municipality => {
-    circlesById.get(municipality.id).classList.toggle(
-      "is-muted",
-      cluster !== 0 && municipality.cluster !== cluster
-    );
-  });
-}
-
-function renderTimeline(municipality) {
-  const timeline = document.querySelector("#passport-timeline");
-  timeline.replaceChildren(...municipality.trajectory.map((cluster, index) => {
-    const month = index + 1;
-    const date = month <= 12 ? `2023-${String(month).padStart(2, "0")}` : `2024-${String(month - 12).padStart(2, "0")}`;
-    const element = document.createElement("span");
-    element.style.background = colors[cluster];
-    element.title = `${date}: ${dataset.clusters[cluster - 1].name}`;
-    return element;
-  }));
-}
-
 function renderComparables(municipality) {
   const container = document.querySelector("#passport-comparables");
+  if (!container) return;
   container.replaceChildren(...municipality.comparables.map(peer => {
     const button = document.createElement("button");
     button.className = "comparable";
@@ -157,14 +132,16 @@ function selectMunicipality(id, scroll = false) {
   document.querySelector("#passport-region").textContent = municipality.region;
   document.querySelector("#passport-name").textContent = municipality.name;
   document.querySelector("#passport-full-name").textContent = municipality.fullName;
-  document.querySelector("#passport-cluster").textContent = municipality.clusterName;
+  document.querySelector("#passport-cluster").textContent = dataset.clusters[municipality.cluster - 1].name;
   document.querySelector("#passport-dot").style.background = colors[municipality.cluster];
   document.querySelector("#passport-spend").textContent = formatNumber(municipality.spendIndex, 1);
   document.querySelector("#passport-access").textContent = formatNumber(municipality.marketAccess, 1);
-  document.querySelector("#passport-months").textContent = municipality.monthsCurrent;
-  document.querySelector("#passport-stability").textContent = municipality.stability;
+  if (document.querySelector("#passport-months")) document.querySelector("#passport-months").textContent = municipality.monthsCurrent;
+  if (document.querySelector("#passport-stability")) document.querySelector("#passport-stability").textContent = municipality.stability;
+  if (document.querySelector("#passport-population")) document.querySelector("#passport-population").textContent = formatNumber(municipality.population);
+  if (document.querySelector("#passport-urban")) document.querySelector("#passport-urban").textContent = `${formatNumber(municipality.urbanShare * 100, 1)}%`;
   document.querySelector("#municipality-search").value = searchLabels.get(municipality.id);
-  renderTimeline(municipality);
+  explorer?.showMunicipality(municipality);
   renderComparables(municipality);
   if (scroll) document.querySelector("#passport").scrollIntoView({behavior: "smooth", block: "center"});
 }
@@ -319,32 +296,51 @@ function renderSignals() {
     </article>
   `).join("");
   document.querySelectorAll("[data-signal-id]").forEach(button => {
-    button.addEventListener("click", () => selectMunicipality(button.dataset.signalId, true));
+    button.addEventListener("click", () => {
+      const signal = dataset.signals.find(item => item.id === Number(button.dataset.signalId));
+      const [year, month] = signal.date.split("-").map(Number);
+      explorer.setMonth((year - 2023) * 12 + month - 1);
+      selectMunicipality(signal.id, true);
+    });
   });
 }
 
-async function start() {
-  const response = await fetch("data.json?v=3");
+async function start(population = false) {
+  const response = await fetch(population ? "external-data.json?v=5" : "data.json?v=5");
   if (!response.ok) throw new Error(`Не удалось загрузить данные: ${response.status}`);
   dataset = await response.json();
   municipalities = dataset.municipalities;
   municipalityById = new Map(municipalities.map(item => [item.id, item]));
   renderSummary();
-  renderClusters();
-  renderMap();
-  renderSignals();
-  renderModels();
-  renderDensity();
-  renderClusterChart();
-  document.querySelector("#cluster-chart-metric").addEventListener("change", event => renderClusterChart(event.target.value));
-  setupSearch();
-  document.querySelector("#map-filters").addEventListener("click", event => {
-    const button = event.target.closest("button[data-cluster]");
-    if (button) applyFilter(Number(button.dataset.cluster));
-  });
-  selectMunicipality(municipalityById.has(354) ? 354 : municipalities[0].id);
+  if (document.querySelector("#cluster-cards")) renderClusters();
+  if (svg) {
+    if (population) document.querySelector("#map-filters").innerHTML = '<button class="filter is-active" data-cluster="0">Все</button>' + dataset.clusters.map(type => `<button class="filter" data-cluster="${type.id}"><span style="background:${colors[type.id]}"></span>${type.name}</button>`).join("");
+    renderMap(); setupSearch();
+  }
+  if (document.querySelector("#model-table")) renderModels();
+  if (document.querySelector("#density-table")) renderDensity();
+  if (document.querySelector("#cluster-chart")) {
+    renderClusterChart();
+    document.querySelector("#cluster-chart-metric").addEventListener("change", event => renderClusterChart(event.target.value));
+  }
+  if (document.querySelector("#map, #studio-chart, #cohort-chart, #change-chart")) explorer = createExplorer(dataset, colors, id => selectMunicipality(id, true));
+  if (document.querySelector("#signal-cards")) renderSignals();
+  if (svg) {
+    const query = new URLSearchParams(window.location.search);
+    const month = query.has("month") ? Number(query.get("month")) : 23;
+    explorer.setMonth(Number.isInteger(month) && month >= 0 && month <= 23 ? month : 23);
+    const cluster = Number(query.get("cluster"));
+    const requested = municipalityById.get(Number(query.get("id")));
+    const candidate = cluster ? municipalities.find(item => item.trajectory[explorer.month()] === cluster) : municipalityById.get(354);
+    selectMunicipality((requested || candidate || municipalities[0]).id);
+    if (cluster > 0 && cluster <= dataset.clusters.length) explorer.filterType(cluster);
+  }
 }
 
-start().catch(error => {
-  document.querySelector("#atlas").innerHTML = `<div class="page-grid"><h2>Не удалось открыть атлас</h2><p>${error.message}. Запустите локальный HTTP-сервер из папки проекта.</p></div>`;
-});
+function showError(error) {
+  const message = document.createElement("p"); message.className = "page-grid load-error";
+  message.textContent = `${error.message}. Запустите локальный HTTP-сервер из папки проекта.`;
+  document.querySelector("main").prepend(message);
+}
+
+if (document.body.dataset.mode !== "population") start().catch(showError);

@@ -1,10 +1,13 @@
 import json
+import math
 import sqlite3
 from pathlib import Path
 
 import pandas as pd
 
-from run_baseline import CLUSTER_NAMES, ROOT
+from run_baseline import CATEGORIES, CLUSTER_NAMES, ROOT, load_monthly_features
+from run_dynamic_model import ECONOMIC_FEATURES, economic_graph, load_config, prepare_monthly, scaled_monthly
+from run_graph_model import transport_graph
 
 
 MUNICIPALITIES = ROOT / "artifacts" / "interpretation" / "municipalities.csv"
@@ -16,6 +19,61 @@ DENSITY = ROOT / "artifacts" / "comparison" / "hdbscan_comparison.csv"
 TRANSITIONS = ROOT / "artifacts" / "interpretation" / "persistent_transitions.csv"
 BOUNDARIES = ROOT / "data" / "raw" / "boundaries" / "t_dict_municipal_districts_poly.gpkg"
 OUTPUT = ROOT / "site" / "data.json"
+
+
+def compact_exploration(ids):
+    raw = pd.read_parquet(ROOT / "data/raw/hackathon/hackathonlicence/consumption.parquet")
+    coverage = raw.groupby("territory_id")["date"].nunique()
+    monthly, _ = prepare_monthly()
+    monthly = monthly[monthly.territory_id.isin(ids)].sort_values(["date", "territory_id"])
+    territory_ids = sorted(map(int, monthly.territory_id.unique()))
+    config = load_config()
+    highway, _ = transport_graph(territory_ids, "highway", config["highway_neighbors"])
+    railway, _ = transport_graph(territory_ids, "railway", config["railway_neighbors"])
+    transport = (highway + config["rail_weight"] * railway).tocsr()
+    sensitivity = pd.read_csv(ROOT / "artifacts/dynamic/bandwidth_sensitivity.csv")
+    eligible = sensitivity[sensitivity.month_to_month_stability.ge(.95) & sensitivity.min_monthly_cluster_share.ge(.15)]
+    bandwidth = float(eligible.loc[eligible.silhouette.idxmax(), "economic_bandwidth"])
+    attributes = scaled_monthly(monthly)
+    count = len(territory_ids)
+    graphs = [economic_graph(transport, attributes[i * count:(i + 1) * count, :len(ECONOMIC_FEATURES)], bandwidth) for i in range(24)]
+    names = pd.read_csv(MUNICIPALITIES).set_index("territory_id").municipal_district_name_short
+    networks = []
+    for name in ["Казань", "Новосибирск", "Смоленский"]:
+        candidates = [index for index, id in enumerate(territory_ids) if names[id] == name]
+        if not candidates:
+            continue
+        center = candidates[0]
+        row = transport.getrow(center)
+        networks.append({
+            "center": territory_ids[center],
+            "edges": [{
+                "id": territory_ids[int(neighbor)],
+                "transport": round(float(weight), 6),
+                "weights": [round(float(graph[center, neighbor]), 6) for graph in graphs],
+            } for neighbor, weight in zip(row.indices, row.data)],
+        })
+    return {
+        "coverage": [[int(id), int(months)] for id, months in coverage.sort_values(ascending=False).items()],
+        "networks": networks,
+    }
+
+
+def compact_histories(ids):
+    frame, _ = load_monthly_features()
+    frame = frame[frame.territory_id.isin(ids)].sort_values(["territory_id", "date"])
+    frame["spend"] = frame["Все категории"].round(0)
+    frame["spendIndex"] = (frame["relative_spend"].map(math.exp) * 100).round(1)
+    columns = ["spend", "spendIndex", *CATEGORIES.values()]
+    frame[list(CATEGORIES.values())] = (frame[list(CATEGORIES.values())] * 100).round(2)
+    if not frame.groupby("territory_id").size().eq(24).all():
+        raise SystemExit("Неполные ряды расходов для лендинга")
+    histories = {
+        int(territory_id): {column: group[column].tolist() for column in columns}
+        for territory_id, group in frame.groupby("territory_id")
+    }
+    median = frame.groupby("date")[columns].median().round(2).to_dict("list")
+    return histories, median
 
 
 def boundary_centers() -> pd.DataFrame:
@@ -153,6 +211,7 @@ def main() -> None:
         raise SystemExit("Ожидалось три аналога для каждого муниципалитета")
 
     trajectories = monthly.groupby("territory_id")["cluster"].apply(list).to_dict()
+    histories, median = compact_histories(municipalities.territory_id)
     peers = {
         territory_id: [
             {
@@ -183,6 +242,7 @@ def main() -> None:
                 "spendIndex": round(row["spend_index"], 1),
                 "marketAccess": round(row["market_access"], 1),
                 "trajectory": [int(value) for value in trajectories[territory_id]],
+                "history": histories[territory_id],
                 "comparables": peers[territory_id],
             }
         )
@@ -201,6 +261,8 @@ def main() -> None:
             ),
         },
         "clusters": cluster_profiles(municipalities),
+        "historyMedian": median,
+        "exploration": compact_exploration(municipalities.territory_id),
         "signals": featured_signals(transitions),
         "models": compact_models(models),
         "densityComparison": compact_density("СберИндекс"),

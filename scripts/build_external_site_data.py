@@ -2,7 +2,7 @@ import json
 
 import pandas as pd
 
-from build_site_data import MUNICIPALITIES, boundary_centers, compact_density
+from build_site_data import MUNICIPALITIES, boundary_centers, compact_density, compact_histories, compact_exploration
 from run_baseline import ROOT
 from run_population_model import ASSIGNMENTS, MATCHED_COMPARISON, POPULATION, SELECTED_K, SENSITIVITY
 
@@ -42,6 +42,7 @@ def main():
     if len(frame) != len(trajectories) or frame["cluster"].nunique() != SELECTED_K:
         raise SystemExit("Назначения внешней модели не совпадают со справочником")
     frame["urban_share"] = frame["urban_population_2024"] / frame["population_2024"]
+    histories, median = compact_histories(frame.territory_id)
 
     records = []
     for row in frame.itertuples():
@@ -58,6 +59,7 @@ def main():
             "spendIndex": round(row.spend_index, 1),
             "marketAccess": round(row.market_access, 1),
             "trajectory": [int(value) for value in trajectories[row.territory_id]],
+            "history": histories[row.territory_id],
         })
 
     profiles = []
@@ -86,6 +88,8 @@ def main():
             "december": round(comparison.ari_same_panel_same_k.iloc[-1], 3),
         },
         "clusters": profiles,
+        "historyMedian": median,
+        "exploration": compact_exploration(frame.territory_id),
         "densityComparison": compact_density("СберИндекс + Росстат"),
         "models": [
             {

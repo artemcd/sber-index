@@ -5,66 +5,213 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Интерактивная типология экономик российских муниципалитетов на данных СберИндекса">
   <title>Локальный код — экономические типы муниципалитетов</title>
-  <link rel="stylesheet" href="styles.css?v=4">
-  <script src="app.js?v=3" defer></script>
+  <link rel="stylesheet" href="styles.css?v=14">
+  <script src="overview.js?v=8" defer></script>
+  <script src="app.js?v=9" defer></script>
 </head>
-<body>
+<body data-mode="base">
   <header class="topbar">
     <a class="brand" href="#top" aria-label="Локальный код — на главную">
       <span class="brand-mark">ЛК</span>
       <span>Локальный код</span>
     </a>
     <nav aria-label="Навигация по странице">
-      <a href="#types">Типы</a>
+      <a href="#brief">Задание</a>
+      <a href="#data">Данные</a>
+      <a href="#dynamics">Динамика</a>
       <a href="#atlas">Атлас</a>
-      <a href="#method">Метод</a>
+      <a href="#comparison">Проверки</a>
       <a href="external.html">СберИндекс + Росстат</a>
     </nav>
   </header>
 
   <main id="top">
-    <section class="hero page-grid">
-      <div class="eyebrow">Исследование муниципальной экономики · 2023–2024</div>
-      <h1>У каждой территории свой <span>экономический ритм</span></h1>
-      <p class="hero-lead">Мы нашли три устойчивых типа локальных экономик и проследили, как 2016 муниципалитетов менялись месяц за месяцем.</p>
-      <div class="hero-actions">
-        <a class="button button-primary" href="#atlas">Найти муниципалитет</a>
-        <a class="button button-secondary" href="external.html">СберИндекс + Росстат</a>
+    <section class="hero task-hero page-grid" id="brief">
+      <div class="hero-copy">
+        <p class="eyebrow">Задание СберИндекса · Кластеризация</p>
+        <h1>Найти типы<br>локальных экономик</h1>
+        <p class="hero-lead">Построить экономическую сеть муниципалитетов, объединить похожие территории и проследить, как их типы меняются со временем.</p>
+        <p class="brief-definition">Узел — муниципалитет. Его атрибуты — экономические показатели. Связь — близость территорий, которая может меняться каждый месяц.</p>
+        <a class="brief-source" href="https://sber.ru/sberindex/konkurs_sberindex#claster" target="_blank" rel="noopener">Полное задание конкурса</a>
+        <a class="scroll-cue" href="#data">Начать с данных <span aria-hidden="true">↓</span></a>
       </div>
-      <div class="hero-orbit" aria-hidden="true">
-        <span class="orbit orbit-one"></span>
-        <span class="orbit orbit-two"></span>
-        <span class="orbit orbit-three"></span>
-        <span class="orbit-core">24<br><small>месяца</small></span>
-      </div>
-      <dl class="hero-stats" aria-label="Основные показатели исследования">
-        <div><dt id="stat-municipalities">2016</dt><dd>муниципалитетов</dd></div>
-        <div><dt id="stat-core">86%</dt><dd>устойчивое ядро</dd></div>
-        <div><dt>3</dt><dd>экономических типа</dd></div>
-        <div><dt id="stat-transitions">215</dt><dd>устойчивых переходов</dd></div>
-      </dl>
-      <p class="hero-footnote">Ядро: один тип минимум в 22 из 24 месяцев при среднем относительном отрыве не менее 15%. Переход: типы до и после смены держались минимум по три месяца.</p>
+      <figure class="brief-network">
+        <figcaption>Как выглядит такая сеть</figcaption>
+        <div class="research-controls"><label for="network-place">Пример<select id="network-place"></select></label><div class="research-switch" id="network-layer"><button type="button" data-layer="transport" aria-pressed="true">Транспорт</button><button type="button" data-layer="economic" aria-pressed="false">Близость трат</button></div></div>
+        <svg id="network-chart" viewBox="0 0 800 390" role="img" aria-label="Фрагмент реальной сети модели"></svg>
+        <p class="research-readout" id="network-readout" aria-live="polite"></p>
+        <div class="research-time"><label for="network-month"><output id="network-month-label">декабрь 2024</output></label><input id="network-month" type="range" min="0" max="23" value="23" aria-label="Месяц примера сети"></div>
+        <p class="studio-help">Прямые соседи выбранной территории в нашей модели. Положение узлов условное; наведите на узел или связь. Толщина связи — её вес.</p>
+      </figure>
     </section>
 
-    <section class="intro page-grid" id="types">
-      <div class="section-heading">
-        <span class="section-number">01</span>
-        <div>
-          <p class="eyebrow">Не рейтинг городов</p>
-          <h2>Три способа жить и тратить</h2>
+    <section class="scroll-story" aria-label="История исследования">
+      <div class="story-layout page-grid">
+        <div class="story-stage">
+          <div class="story-status"><span id="story-chapter">Анализ данных</span><span id="story-progress">01 / 09</span></div>
+          <figure class="studio story-panel" data-panel="points">
+            <figcaption id="studio-title">География типов · декабрь 2024</figcaption>
+            <svg id="studio-chart" viewBox="0 0 800 410" role="img" aria-label="Центры муниципалитетов"><g id="studio-axes"></g><g id="studio-points"></g><g id="studio-labels"></g></svg>
+            <div id="studio-tooltip" class="studio-tooltip" hidden></div>
+            <div id="studio-legend" class="studio-legend"></div>
+            <p id="studio-insight" class="studio-insight"></p>
+            <p class="studio-help">Наведите на точку для подробностей. Нажмите, чтобы открыть историю территории в атласе ниже.</p>
+          </figure>
+          <figure class="story-panel story-cohorts" data-panel="cohorts" hidden>
+            <figcaption id="cohort-title">Доля маркетплейсов по типам</figcaption>
+            <svg id="cohort-chart" viewBox="0 0 850 330" role="img" aria-label="Доли маркетплейсов за 24 месяца"></svg>
+            <div id="cohort-readout" class="cohort-readout"></div>
+            <p class="studio-help">Нажмите на тип или месяц, чтобы исследовать его в атласе ниже.</p>
+          </figure>
+          <figure class="overview story-panel" data-panel="overview" hidden>
+            <figcaption>Состав типов за 24 месяца</figcaption>
+            <svg id="overview-chart" viewBox="0 0 480 220" role="img" aria-label="Доли типов по месяцам"></svg>
+            <div id="overview-legend" class="overview-legend"></div>
+            <p id="overview-month" class="overview-month"></p>
+            <p id="overview-result" class="overview-result"></p>
+          </figure>
+          <figure class="story-panel" data-panel="coverage" hidden>
+            <figcaption>От исходных данных к общей панели</figcaption>
+            <div class="research-switch" id="coverage-filter"><button type="button" data-filter="all" aria-pressed="true">Все территории</button><button type="button" data-filter="included" aria-pressed="false">В модели</button><button type="button" data-filter="excluded" aria-pressed="false">Исключены</button></div>
+            <svg id="coverage-chart" viewBox="0 0 800 355" role="img" aria-label="Полнота рядов муниципалитетов"></svg>
+            <div class="research-legend" id="coverage-legend"></div>
+            <p class="research-readout" id="coverage-readout" aria-live="polite"></p>
+            <p class="studio-help">Точка — одна территория. Наведите на неё, чтобы посмотреть полноту ряда; кнопки выделяют состав выборки.</p>
+          </figure>
+          <figure class="story-panel" data-panel="distribution" hidden>
+            <figcaption>Распределение расходов по территориям</figcaption>
+            <div class="research-time"><label for="distribution-month"><output id="distribution-month-label">декабрь 2024</output></label><input id="distribution-month" type="range" min="0" max="23" value="23" aria-label="Месяц распределения расходов"></div>
+            <svg id="distribution-chart" viewBox="0 0 800 360" role="img" aria-label="Распределение расходов по муниципалитетам"></svg>
+            <p class="research-readout" id="distribution-readout" aria-live="polite"></p>
+            <div class="research-peers" id="distribution-peers"></div>
+            <p class="studio-help">Столбец — диапазон расходов; нажмите, чтобы увидеть примеры территорий. Ползунок меняет месяц. Расходы — в текущих рублях.</p>
+          </figure>
+          <figure class="story-panel" data-panel="calendar" hidden>
+            <figcaption>Календарь изменения потребительской корзины</figcaption>
+            <svg id="calendar-chart" viewBox="0 0 800 365" role="img" aria-label="Изменение медианных долей пяти категорий за 24 месяца"></svg>
+            <p class="research-readout" id="calendar-readout" aria-live="polite"></p>
+            <p class="studio-help">Цвет — изменение медианной доли относительно января 2023, в процентных пунктах. Нажмите на ячейку для точного значения.</p>
+          </figure>
+          <figure class="story-panel" data-panel="flows" hidden>
+            <figcaption>Тип в начале периода → тип в конце</figcaption>
+            <label class="research-check"><input id="flows-different" type="checkbox" checked> Только разные типы на старте и финише</label>
+            <svg id="flows-chart" viewBox="0 0 800 410" role="img" aria-label="Потоки муниципалитетов между типами января 2023 и декабря 2024"></svg>
+            <div class="research-legend" id="flows-legend"></div>
+            <p class="research-readout" id="flows-readout" aria-live="polite"></p>
+            <div class="research-peers" id="flows-peers"></div>
+            <p class="studio-help">Толщина ленты — число территорий. Нажмите на ленту для примеров. Промежуточные смены и возвраты здесь не показаны.</p>
+          </figure>
+        </div>
+        <div class="story-steps">
+          <article class="story-step" id="data" data-panel="coverage" data-chapter="Анализ данных">
+            <p class="eyebrow">01 · Полнота данных</p>
+            <h2>Сравнивать можно<br>не все территории</h2>
+            <p>Из 2190 территорий 2016 имеют все 24 месяца расходов. У остальных 174 ряд короче; без общей панели смена состава выборки могла бы выглядеть как изменение экономики.</p>
+            <p>Фиксируем состав выборки на весь период. Так в каждом месяце сравниваются одни и те же муниципалитеты.</p>
+            <a class="story-detail-link" href="#data-details">Источники и вехи периода</a>
+          </article>
+          <article class="story-step" id="distribution" data-panel="distribution" data-chapter="Анализ данных">
+            <p class="eyebrow">02 · Уровень расходов</p>
+            <h2>За одной медианой —<br>разные территории</h2>
+            <p>Гистограмма показывает, сколько муниципалитетов попадает в каждый диапазон расходов. Вертикальная линия — медиана выбранного месяца.</p>
+            <p>Передвиньте ползунок: меняется и общий уровень, и распределение. Для модели расходы сравниваются с медианой того же месяца, чтобы общий рост не определял тип территории.</p>
+          </article>
+          <article class="story-step" id="calendar" data-panel="calendar" data-chapter="Анализ данных">
+            <p class="eyebrow">03 · Структура расходов</p>
+            <h2>Что меняется<br>в самой корзине</h2>
+            <p>В каждой строке — одна категория, в каждом столбце — месяц. Зелёный показывает рост медианной доли относительно января 2023, оранжевый — снижение.</p>
+            <p>Теперь видно не только маркетплейсы: можно сравнить все пять раскрытых категорий и сезонные колебания. Это медианы долей по территориям; они не складываются в общую корзину страны.</p>
+          </article>
+          <article class="story-step" id="geography" data-panel="points" data-view="geo" data-chapter="От данных к типам">
+            <p class="eyebrow">04 · География</p>
+            <h2>Теперь —<br>одна общая карта</h2>
+            <p>Каждая точка — центр муниципалитета. Во всех 24 месяцах сравниваем одни и те же 2016 территории.</p>
+            <p>СберИндекс описывает уровень расходов, пять долей категорий и доступность рынков. 174 территории с неполными рядами исключены.</p>
+            <a class="story-detail-link" href="#data-details">Источники и вехи периода</a>
+          </article>
+          <article class="story-step" id="types" data-panel="points" data-view="profile" data-metric="food_service_share">
+            <p class="eyebrow">05 · Различия</p>
+            <h2>Три типа.<br>Разные профили.</h2>
+            <p>Точки перемещаются с карты на диаграмму: по горизонтали — индекс расходов, по вертикали — доля общепита в декабре 2024.</p>
+            <p>Цвет сохраняет тип территории. Крупные точки — медианы внутри групп. Это два показателя многомерной модели, а не её полное описание.</p>
+            <a class="story-detail-link" href="#types-details">Профили всех типов</a>
+          </article>
+          <article class="story-step" id="basket" data-panel="points" data-view="change" data-metric="marketplace_share">
+            <p class="eyebrow">06 · Сдвиг в корзине</p>
+            <h2>Маркетплейсы<br>занимают больше места</h2>
+            <p class="story-key" id="story-shift">—</p>
+            <p>Так изменилась медианная доля маркетплейсов за два года. Выше диагонали — территории, где доля выросла: <strong id="story-growth">—</strong>.</p>
+            <p class="story-note">Рост доли не измеряет рост суммы покупок. Обе оси показывают долю от всех расходов.</p>
+          </article>
+          <article class="story-step" id="patterns" data-panel="cohorts" data-metric="marketplace_share">
+            <p class="eyebrow">07 · Внутри типов</p>
+            <h2>Сдвиг виден<br>в каждой группе</h2>
+            <p>Для каждого типа декабря 2024 фиксируем состав территорий и прослеживаем его назад через все 24 месяца.</p>
+            <p>Линии показывают медианную долю маркетплейсов в этих постоянных группах. Их рост не вызван переходом территорий из одного типа в другой.</p>
+          </article>
+          <article class="story-step" id="stability" data-panel="overview">
+            <p class="eyebrow">08 · Устойчивость</p>
+            <h2>Корзина меняется.<br>Тип чаще сохраняется.</h2>
+            <p class="story-key" id="story-stable">—</p>
+            <p>территорий ни разу не сменили тип за два года. На графике — состав типов в каждом месяце; похожие доли сами по себе ещё не означают, что состав групп неизменен.</p>
+            <p>Чтобы увидеть отдельные переходы, откройте историю территории или матрицу смен типов ниже.</p>
+            <a class="story-detail-link" href="#atlas">Исследовать свою территорию</a>
+          </article>
+          <article class="story-step" id="flows" data-panel="flows" data-chapter="От типов к изменениям">
+            <p class="eyebrow">09 · Переходы</p>
+            <h2>Куда пришли те,<br>кто сменил тип</h2>
+            <p>Ленты связывают типы января 2023 и декабря 2024. Они показывают, между какими группами переместились территории за весь период.</p>
+            <p>Снимите фильтр, чтобы увидеть и совпадающие типы. Одинаковый тип на старте и финише не означает, что между ними не было изменений.</p>
+            <a class="story-detail-link" href="#atlas">Открыть истории территорий</a>
+          </article>
         </div>
       </div>
-      <p class="section-lead">Типы описывают структуру безналичных расходов и транспортный контекст. Это не шкала «лучше — хуже» и не административная классификация.</p>
+    </section>
+
+    <section class="data-section page-grid" id="data-details">
+      <div class="section-heading"><span class="section-number">01</span><div><p class="eyebrow">Данные и период</p><h2>Что стоит за картой</h2></div></div>
+      <p class="section-lead">Сравниваем один и тот же состав территорий во всех 24 месяцах. Тип отражает расходы и окружение муниципалитета.</p>
+      <div class="data-grid">
+        <article><h3>Что и как тратят</h3><p><a href="https://sberindex.ru/ru/research/data-sense-opisanie-nabora-dannikh-khakatona-sberindeksa-po-munitsipalnim-dannim">СберИндекс</a>: уровень безналичных расходов и пять долей — здоровье, маркетплейсы, общепит, продукты, транспорт. Каждая доля считается от «Всех категорий»; сумма пяти долей не равна 100%.</p></article>
+        <article><h3>Транспортное окружение</h3><p>Доступность рынков и дорожные расстояния задают контекст и соседей. Это фиксированный срез конца 2024 года; ежемесячно меняются расходы и веса связей. Для 12 территорий доступность заполнена медианой.</p></article>
+        <article><h3>Какие территории</h3><p><a href="https://sberindex.ru/ru/research/dataset-borders-and-changes-of-municipalities">Справочник муниципалитетов</a> связывает данные с названиями, регионами и границами. Из 2190 территорий оставлены 2016 с полными рядами; 174 исключены.</p></article>
+      </div>
+      <ol class="period-line" aria-label="Вехи периода наблюдений">
+        <li><time>Январь 2023</time><strong>Начало наблюдений</strong><p>Первый из 24 месяцев для всех 2016 территорий.</p></li>
+        <li><time>Апрель 2023</time><strong>Больше всего смен типа</strong><p>92 территории — 4,6% выборки. Это смены назначений модели, а не доказательство шока.</p></li>
+        <li><time>Декабрь 2024</time><strong>Итоговый срез</strong><p>Три типа на карте; в паспорте — история каждого муниципалитета.</p></li>
+      </ol>
+      <details class="method-context" id="method"><summary>Как из данных получается тип</summary>
+        <div class="method-story">
+          <div class="method-step"><span>1</span><h3>Описываем</h3><p>Сравниваем уровень расходов, доли категорий и доступность рынков.</p></div>
+          <div class="method-arrow" aria-hidden="true">→</div>
+          <div class="method-step"><span>2</span><h3>Связываем</h3><p>Транспорт задаёт соседей; вес связи меняется каждый месяц вместе со сходством расходов.</p></div>
+          <div class="method-arrow" aria-hidden="true">→</div>
+          <div class="method-step"><span>3</span><h3>Группируем</h3><p>KMeans находит общие для всех месяцев типы. Затем отслеживаем переходы между ними.</p></div>
+        </div>
+        <p class="chart-note">Модель обучена сразу на всех 24 месяцах: это описание прошлого. <a href="#comparison">Как проверяли выбор модели →</a></p>
+      </details>
+    </section>
+
+    <section class="intro page-grid" id="types-details">
+      <div class="section-heading">
+        <span class="section-number">02</span>
+        <div>
+          <p class="eyebrow">Не рейтинг городов</p>
+          <h2>Чем различаются три типа</h2>
+        </div>
+      </div>
+      <p class="section-lead">Профили ниже — срез декабря 2024. Типы описывают структуру безналичных расходов и транспортный контекст. Это не шкала «лучше — хуже» и не административная классификация.</p>
       <div class="type-grid" id="cluster-cards" aria-live="polite"></div>
     </section>
 
     <section class="atlas-section" id="atlas">
       <div class="page-grid">
         <div class="section-heading section-heading-light">
-          <span class="section-number">02</span>
+          <span class="section-number">03</span>
           <div>
             <p class="eyebrow">Интерактивный атлас</p>
-            <h2>Найдите территорию на экономической карте</h2>
+            <h2>Карта и история территории</h2>
           </div>
         </div>
         <div class="atlas-toolbar">
@@ -83,9 +230,23 @@
             <button class="filter" data-cluster="3"><span></span>Крупные центры</button>
           </div>
         </div>
+        <div class="time-controls">
+          <button id="month-play" type="button" aria-label="Проиграть 24 месяца">▶</button>
+          <button id="month-prev" type="button" aria-label="Предыдущий месяц">←</button>
+          <label for="atlas-month">Месяц <output id="month-label">декабрь 2024</output></label>
+          <input id="atlas-month" type="range" min="0" max="23" value="23" aria-label="Месяц на карте">
+          <button id="month-next" type="button" aria-label="Следующий месяц">→</button>
+        </div>
+        <div class="layer-controls">
+          <label for="map-layer">Показать <select id="map-layer"><option value="type">Типы территорий</option><option value="spend">Расходы, ₽ в месяц</option><option value="changes">Число смен типа</option></select></label>
+          <label><input id="changed-only" type="checkbox"> Только сменившие тип за месяц</label>
+          <button id="selection-reset" type="button">Сбросить выделение</button>
+        </div>
+        <p id="map-status" class="atlas-guide" aria-live="polite"></p>
+        <p class="atlas-guide">Каждая точка — центр муниципалитета. Цвет показывает выбранный слой: тип, расходы или число смен. Нажмите на точку или найдите название: ниже откроются показатели и история за 24 месяца. Кнопки типов фильтруют карту. Приближайте кнопками; перетаскивание сдвигает карту.</p>
       </div>
 
-      <div class="map-wrap">
+      <div class="map-wrap"><div class="map-zoom"><button id="map-zoom-in" aria-label="Приблизить карту">+</button><button id="map-zoom-out" aria-label="Отдалить карту">−</button><button id="map-reset" aria-label="Вся карта">↺</button></div><div id="map-scale" class="map-scale"></div>
         <svg id="map" viewBox="0 0 1000 440" role="img" aria-label="Схематичная карта муниципалитетов России"></svg>
         <div class="map-caption">Схематичное положение центров муниципалитетов · декабрь 2024</div>
         <div class="tooltip" id="map-tooltip" hidden></div>
@@ -99,7 +260,7 @@
         </div>
         <div class="passport-type">
           <span class="type-dot" id="passport-dot"></span>
-          <div><small>Тип в декабре 2024</small><strong id="passport-cluster">Крупные центры</strong></div>
+          <div><small id="passport-date">Тип в декабре 2024</small><strong id="passport-cluster">Крупные центры</strong></div>
         </div>
         <dl class="passport-metrics">
           <div><dt id="passport-spend">—</dt><dd>индекс расходов</dd></div>
@@ -107,58 +268,64 @@
           <div><dt id="passport-months">—</dt><dd>месяцев в текущем типе</dd></div>
           <div><dt id="passport-stability">—</dt><dd>устойчивость</dd></div>
         </dl>
-        <p class="passport-note">Индекс расходов: 100 — медиана муниципалитетов за месяц. Доступность рынков — исходный индекс СберИндекса: большее значение означает более высокую доступность.</p>
+        <p class="passport-note">Индекс расходов: 100 — медиана муниципалитетов за выбранный месяц. Доступность рынков — фиксированный индекс СберИндекса конца 2024 года: большее значение означает более высокую доступность.</p>
         <div class="timeline-block">
           <div class="timeline-heading"><h4>Динамика типа</h4><span>январь 2023 → декабрь 2024</span></div>
           <div class="timeline" id="passport-timeline"></div>
         </div>
         <div class="comparables-block">
-          <div class="timeline-heading"><h4>Сопоставимые территории</h4><span>ближайший профиль из другого региона</span></div>
+          <div class="timeline-heading"><h4>Сопоставимые территории</h4><span>профиль декабря 2024 · другой регион</span></div>
           <div class="comparables" id="passport-comparables"></div>
+        </div>
+        <div class="history-panel">
+          <div class="history-heading"><div><p class="eyebrow">Расходы и структура потребления</p><h4>Что менялось вместе с типом</h4></div>
+            <label for="history-metric">Показатель<select id="history-metric"><option value="spend">Расходы, ₽ в месяц</option><option value="spendIndex">Индекс расходов</option><option value="marketplace_share">Доля маркетплейсов, %</option><option value="grocery_share">Доля продуктов, %</option><option value="food_service_share">Доля общепита, %</option><option value="health_share">Доля здоровья, %</option><option value="transport_share">Доля транспорта, %</option></select></label>
+          </div>
+          <svg id="history-chart" viewBox="0 0 920 250" role="img" aria-label="Динамика расходов выбранного муниципалитета и медиана выборки"></svg>
+          <p id="history-readout" class="history-readout" aria-live="polite"></p>
+          <p class="history-note">Сплошная линия — выбранная территория, пунктир — медиана выборки за месяц. Нажмите на месяц графика или полосы типов: карта покажет этот срез. Расходы в текущих рублях, без поправки на инфляцию.</p>
         </div>
       </article>
     </section>
 
-    <section class="signals page-grid" id="signals">
-      <div class="section-heading">
-        <span class="section-number">03</span>
-        <div>
-          <p class="eyebrow">Сигналы для исследования</p>
-          <h2>Переход — повод задать вопрос</h2>
-        </div>
+    <section class="dynamics page-grid" id="dynamics">
+      <div class="section-heading"><span class="section-number">↔</span><div><p class="eyebrow">Исследовать изменения</p><h2>Когда и между какими типами идут переходы</h2></div></div>
+      <p class="section-lead">Выберите месяц на графике, затем направление в таблице. Карта выделит именно эти территории; из списка можно открыть любую историю.</p>
+      <div class="dynamics-grid">
+        <article class="dynamics-plot"><h3>Сколько территорий меняли тип</h3><svg id="change-chart" viewBox="0 0 620 260" role="img" aria-label="Число смен типа по месяцам"></svg><p id="change-readout" aria-live="polite"></p></article>
+        <article class="dynamics-plot"><h3>Из какого типа в какой</h3><p id="matrix-month"></p><div id="transition-matrix"></div><p class="chart-note">Строка — прежний тип, столбец — новый. Числа — территории, диагональ — сохранившие тип.</p></article>
       </div>
-      <p class="section-lead">Три сильных примера, где новый тип сохранялся не менее полугода. Они выбраны автоматически — по одному на каждый конечный тип с наибольшим относительным отрывом в первые три месяца.</p>
-      <div class="signal-grid" id="signal-cards" aria-live="polite"></div>
-
-      <div class="use-cases">
-        <article><span>01</span><h3>Заметить</h3><p>Отследить устойчивое изменение профиля раньше, чем оно потеряется в годовой агрегации.</p></article>
-        <article><span>02</span><h3>Сопоставить</h3><p>Найти территории со схожей структурой расходов в других регионах и сравнить траектории.</p></article>
-        <article><span>03</span><h3>Проверить</h3><p>Сформулировать гипотезу и проверить её на данных о населении, доходах и отраслевой структуре.</p></article>
-      </div>
-      <p class="signals-note">Переход типа не объясняет причину изменения и сам по себе не доказывает экономический сдвиг.</p>
+      <div class="transition-selection"><h3 id="transition-title">Территории выбранного перехода</h3><div id="transition-list" class="transition-list"></div></div>
     </section>
-
-    <section class="method page-grid" id="method">
+    <section class="signals page-grid" id="signals">
       <div class="section-heading">
         <span class="section-number">04</span>
         <div>
-          <p class="eyebrow">Метод</p>
-          <h2>Экономика — это не только набор показателей</h2>
+          <p class="eyebrow">Изменения за два года</p>
+          <h2>Где тип изменился надолго</h2>
         </div>
       </div>
-      <div class="method-story">
-        <div class="method-step"><span>1</span><h3>Наблюдаем</h3><p>Расходы по категориям и доступность рынков для каждого муниципалитета.</p></div>
-        <div class="method-arrow" aria-hidden="true">→</div>
-        <div class="method-step"><span>2</span><h3>Связываем</h3><p>Автодорожная и железнодорожная сеть задаёт реальное окружение территории.</p></div>
-        <div class="method-arrow" aria-hidden="true">→</div>
-        <div class="method-step"><span>3</span><h3>Сравниваем во времени</h3><p>Вес связей меняется вместе с экономическим сходством, тип пересчитывается ежемесячно.</p></div>
+      <p class="section-lead">Из 1174 помесячных смен типа выделены 215 устойчивых переходов: прежний и новый тип держались минимум по три месяца. Ниже — по одному примеру на конечный тип: новый тип сохранялся минимум полгода, а отрыв от соседнего типа был максимальным в первые три месяца.</p>
+      <div class="signal-grid" id="signal-cards" aria-live="polite"></div>
+
+      <p class="signals-note">Переход типа не объясняет причину изменения и сам по себе не доказывает экономический сдвиг.</p>
+    </section>
+
+    <section class="method page-grid" id="comparison">
+      <div class="section-heading">
+        <span class="section-number">05</span>
+        <div>
+          <p class="eyebrow">Проверка модели</p>
+          <h2>Почему выбраны три типа</h2>
+        </div>
       </div>
 
+      <p class="section-lead">Три типа выбраны по годовой модели и понятности профилей. В помесячной модели это число сохранили; график от двух до восьми типов служит проверкой, а не доказательством оптимума. K — число типов.</p>
       <div class="model-card">
         <div>
           <p class="eyebrow">Проверка альтернатив</p>
           <h3>Небольшой выигрыш от динамической сети</h3>
-          <p>Разница со статической сетью: +0,0021 по SW и +0,0034 по временному ARI. GMM лидирует по модулярности, статическая сеть — по изолируемости кластеров. Это сравнение на данных обучения; преимущество на новых месяцах не проверено.</p>
+          <p>Динамическая сеть немного лучше статической по разделению групп (SW: +0,0021) и сходству соседних месяцев (ARI: +0,0034). Другие методы лидируют по отдельным метрикам. Преимущество на новых месяцах не проверено.</p>
         </div>
         <div class="model-table-wrap">
           <table>
@@ -168,7 +335,14 @@
         </div>
       </div>
 
-      <div class="cluster-chart-card">
+      <details class="density-card">
+        <summary>Дополнительная проверка: плотные группы HDBSCAN</summary>
+        <p>Для атласа нужен тип каждой территории. HDBSCAN ищет только плотные группы и может оставить остальные без типа. На тех же признаках и динамической сети он охватывает около 35% территорий в среднем за месяц, поэтому для карты оставлен KMeans.</p>
+        <div class="model-table-wrap"><table><thead><tr><th>Модель</th><th>Охват</th><th>Групп</th><th>SW ↑</th></tr></thead><tbody id="density-table"></tbody></table></div>
+        <p class="chart-note">SW сравниваем на одних территориях: строка «KMeans, назначенные HDBSCAN» — контроль. Параметры HDBSCAN: min_cluster_size=50, min_samples=10.</p>
+      </details>
+
+      <details class="cluster-chart-card"><summary>Как число типов влияет на показатели</summary><div class="cluster-chart-content">
         <div class="cluster-chart-heading">
           <div><p class="eyebrow">K — число типов</p><h3>Как меняются модели при разном числе типов</h3></div>
           <label for="cluster-chart-metric">Показатель
@@ -189,19 +363,12 @@
           <div><dt>Доля минимального кластера</dt><dd>Доля территорий в самой маленькой группе. Помогает заметить слишком дробное разбиение.</dd></div>
         </dl>
         <p class="chart-note">Одна и та же панель и параметры сети; K меняется от 2 до 8. Метрики не сводятся в один рейтинг.</p>
-      </div>
+      </div></details>
 
-      <div class="density-card">
-        <p class="eyebrow">Плотностная альтернатива</p>
-        <h3>HDBSCAN против KMeans</h3>
-        <p>Средние значения за 24 месяца на одних признаках и динамической сети. Для атласа оставлен KMeans: он назначает тип всем территориям, а HDBSCAN выделяет только плотные группы.</p>
-        <div class="model-table-wrap"><table><thead><tr><th>Модель</th><th>Доля МО</th><th>Групп</th><th>SW ↑</th></tr></thead><tbody id="density-table"></tbody></table></div>
-        <p class="chart-note">HDBSCAN: min_cluster_size=50, min_samples=10; K не задаётся. SW на назначенных территориях нельзя напрямую сравнивать с SW на всей панели. Строка KMeans на тех же территориях даёт сопоставимую базу.</p>
-      </div>
-
+      <p class="chart-note">Материалы: <a href="https://github.com/artemcd/sber-index/blob/main/reports/dynamic_clustering.md">методология</a> · <a href="https://github.com/artemcd/sber-index/blob/main/reports/model_comparison.md">все индексы качества</a> · <a href="https://github.com/artemcd/sber-index/blob/main/artifacts/dynamic/monthly_clusters.csv">типы по месяцам, CSV</a>.</p>
       <div class="limits">
         <h3>Что важно помнить</h3>
-        <p>Кластеры не измеряют благополучие. В данных нет населения, доходов и отраслевой структуры. Типология построена ретроспективно за все 24 месяца. Переход типа — сигнал для исследования, а не доказательство структурного сдвига.</p>
+        <p>Типология описывает расходы за прошлые 24 месяца; доходов, населения и занятости в этом режиме нет. Проверка устойчивости на подвыборках выполнена для годовой модели, а не финальной помесячной. Типы не измеряют благополучие и не устанавливают причины переходов.</p>
       </div>
     </section>
   </main>
