@@ -216,4 +216,12 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-data/raw/
+data/raw/*
+!data/raw/rosstat/
+data/raw/rosstat/*
+!data/raw/rosstat/BUL_MO_2023.xlsx
+!data/raw/rosstat/BUL_MO_2024.xlsx
+!data/raw/rosstat/urov_2023_2024.xlsx
+!data/raw/rosstat/data_section3.parquet
+!data/raw/rosstat/data_section9.parquet
+!data/raw/rosstat/SOURCES.md
