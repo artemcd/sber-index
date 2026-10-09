@@ -104,3 +104,8 @@ assert page.index('id="count-check"') < page.index('id="transition-check"') < pa
 for name, digest in decisions["inputs"].items():
     assert hashlib.sha256((SITE.parent / name).read_bytes()).hexdigest() == digest, f"Устарела проверка решений: {name}; выполните make decisions"
 print("Decisions: assets, section order and provenance OK")
+
+assert page.index('id="transition-check"') < page.index('id="metrics"') < page.index('id="result"')
+assert 'href="metrics-method.md"' in page
+assert (SITE / "metrics-method.md").read_bytes() == (SITE.parent / "reports/metrics.md").read_bytes(), "Устарела глава о метриках: выполните make metrics"
+print("Metrics: report, site copy and section order OK")
